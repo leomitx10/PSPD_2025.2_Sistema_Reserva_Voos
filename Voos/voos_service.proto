@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package voos;
+
+service VoosService {
+    rpc ConsultarVoos(ConsultaVoosRequest) returns (ConsultaVoosResponse);
+}
+
+message Voo {
+    string id = 1;
+    string origem = 2;
+    string destino = 3;
+    string data = 4;
+    string horario_partida = 5;
+    string horario_chegada = 6;
+    double preco = 7;
+    string companhia_aerea = 8;
+    string numero_voo = 9;
+    int32 assentos_disponiveis = 10;
+    string status = 11; // ativo, cancelado, lotado
+    string classe_economica = 12;
+    string aeronave = 13;
+    int32 duracao_minutos = 14;
+}
+
+message ConsultaVoosRequest {
+    string origem = 1;
+    string destino = 2;
+    string data = 3;
+    double preco_max = 4;
+    string companhia_aerea = 5;
+    string faixa_horario = 6;
+    string ordenacao = 7; // preco, horario, duracao
+}
+
+message ConsultaVoosResponse {
+    repeated Voo voos = 1;
+    int32 total_encontrados = 2;
+    string tempo_processamento = 3;
+}

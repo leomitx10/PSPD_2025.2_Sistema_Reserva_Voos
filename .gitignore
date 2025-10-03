@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# gRPC generated files
+*_pb2.py
+*_pb2_grpc.py
+
+# Virtual environments
+venv/
+.env/
+.venv/
+
+# IDE/editor configs
+.vscode/
+.idea/
+*.swp
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.bak
+*.tmp
+
+# Ignore everything except important files
+!*.py
+!*.proto
+!requirements.txt
+!README.md
