@@ -59,8 +59,9 @@ class VoosServiceImpl(voos_service_pb2_grpc.VoosServiceServicer):
         
         voos_ordenados = self._ordenar_voos(voos_filtrados, request.ordenacao)
         
-        if random.random() < 0.1:  
-            voos_ordenados = []
+        # Comentado: simulação de falha aleatória
+        # if random.random() < 0.1:  
+        #     voos_ordenados = []
         
         tempo_processamento = time.time() - inicio_processamento
         

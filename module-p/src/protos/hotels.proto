@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package hotel;
+
+service HotelService {
+  rpc SearchHotels(SearchHotelsRequest) returns (SearchHotelsResponse);
+}
+
+message SearchHotelsRequest {
+  string city = 1;
+  int32 min_stars = 2;
+  int32 max_stars = 3;
+  double min_price = 4;
+  double max_price = 5;
+  string accommodation_type = 6;
+  string order_by = 7; // "price" or "rating"
+  int32 delay_seconds = 8; // for performance testing
+}
+
+message SearchHotelsResponse {
+  repeated Hotel hotels = 1;
+  bool has_availability = 2;
+}
+
+message Hotel {
+  string id = 1;
+  string name = 2;
+  string city = 3;
+  int32 stars = 4;
+  double price = 5;
+  bool available = 6;
+  repeated string amenities = 7;
+  string accommodation_type = 8;
+}

@@ -1,42 +1,4 @@
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.egg-info/
-dist/
-build/
-
-# Go
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-*.test
-*.out
-bin/
-vendor/
-
-# gRPC generated files (mantemos os já gerados para facilitar execução)
-# *_pb2.py
-# *_pb2_grpc.py
-# *.pb.go
-
-# Virtual environments
-venv/
-.env/
-.venv/
-env/
-
-# IDE/editor configs
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS generated files
+# Operating System
 .DS_Store
 .DS_Store?
 ._*
@@ -44,25 +6,175 @@ env/
 .Trashes
 ehthumbs.db
 Thumbs.db
+*~
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.metadata
+.classpath
+.settings/
 
 # Logs
 *.log
 logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Node.js (module-p)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Python (Voos)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Go (Hoteis)
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+vendor/
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Go workspace file
+go.work
+
+# Dependency directories
+vendor/
+
+# Go module download cache
+go/pkg/mod/
+
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+*.so
+
+# Architecture specific extensions/prefixes
+*.[568vq]
+[568vq].out
+
+*.cgo1.go
+*.cgo2.c
+_cgo_defun.c
+_cgo_gotypes.go
+_cgo_export.*
+
+_testmain.go
+
+*.exe
+*.test
+*.prof
+
+# gRPC generated files (podem ser regenerados)
+*_pb2.py
+*_pb2_grpc.py
+*.pb.go
+*_grpc.pb.go
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
 
 # Temporary files
 *.tmp
 *.temp
+.tmp/
+.temp/
 
-# System files
-.DS_Store
-Thumbs.db
+# Build artifacts
+dist/
+build/
+out/
+target/
 
-# Backup files
-*.bak
-*.tmp
+# Package files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
 
-# Ignore everything except important files
-!*.py
-!*.proto
-!requirements.txt
-!README.md
+# Security
+*.pem
+*.key
+config/secrets.json
+.secrets
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# nyc test coverage
+.nyc_output
+
+# Dependency lock files (opcional - alguns preferem versionar)
+# package-lock.json
+# yarn.lock
+# go.sum
