@@ -699,6 +699,7 @@ function openMonitorModal() {
     document.getElementById('monitor-flight-code').value = '';
     document.getElementById('monitor-updates').innerHTML = '';
     document.getElementById('monitor-progress').style.width = '0%';
+    document.getElementById('new-monitoring-btn').style.display = 'none';
     openModal('monitor-modal');
 }
 
@@ -750,6 +751,8 @@ function startMonitoring(numeroVoo) {
         if (update.status === 'finalizado') {
             monitorEventSource.close();
             showNotification('Monitoramento concluído!', 'success');
+            // Mostrar botão de novo monitoramento
+            document.getElementById('new-monitoring-btn').style.display = 'block';
         }
     };
 
@@ -757,6 +760,25 @@ function startMonitoring(numeroVoo) {
         monitorEventSource.close();
         showNotification('Erro no monitoramento', 'error');
     };
+}
+
+// Função para resetar o monitoramento e permitir um novo
+function resetMonitoring() {
+    // Fechar conexão se estiver ativa
+    if (monitorEventSource) {
+        monitorEventSource.close();
+        monitorEventSource = null;
+    }
+    
+    // Resetar estado da modal
+    document.getElementById('monitor-input-section').style.display = 'block';
+    document.getElementById('monitor-tracking-section').style.display = 'none';
+    document.getElementById('monitor-flight-code').value = '';
+    document.getElementById('monitor-updates').innerHTML = '';
+    document.getElementById('monitor-progress').style.width = '0%';
+    document.getElementById('new-monitoring-btn').style.display = 'none';
+    
+    showNotification('Pronto para novo monitoramento!', 'info');
 }
 
 // ============ CHAT SUPORTE (Bidirectional Streaming) ============

@@ -832,6 +832,19 @@ header p {
     color: #2d3748;
 }
 
+.monitor-actions {
+    text-align: center;
+    padding: 20px 0;
+    border-top: 1px solid #e2e8f0;
+    margin-top: 20px;
+}
+
+.monitor-actions .btn-secondary {
+    width: auto;
+    min-width: 200px;
+    display: inline-block;
+}
+
 /* ============ CHAT ============ */
 .chat-body {
     padding: 0 !important;
