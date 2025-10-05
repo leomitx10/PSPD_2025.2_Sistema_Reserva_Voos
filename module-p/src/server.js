@@ -59,5 +59,5 @@ setupChatWebSocket(wss);
 
 server.listen(PORT, () => {
   console.log(`API Gateway running on port ${PORT}`);
-  console.log(`WebSocket Chat available at ws://localhost:${PORT}/chat`);
+  console.log(`WebSocket Chat available at /chat endpoint`);
 });

@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = '/api';
 
 // ============ CARRINHO GLOBAL ============
 let cart = [];
@@ -893,8 +893,13 @@ function openChatModal() {
 function connectChat() {
     const messagesDiv = document.getElementById('chat-messages');
 
+    // Build WebSocket URL dynamically based on current location
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.host;
+    const wsUrl = `${protocol}//${host}/chat`;
+    
     // Use WebSocket for bidirectional communication (alternative to gRPC bidirectional streaming)
-    chatWebSocket = new WebSocket('ws://localhost:3000/chat');
+    chatWebSocket = new WebSocket(wsUrl);
 
     chatWebSocket.onopen = () => {
         addChatMessage('suporte', 'Olá! Como posso ajudar você hoje?');

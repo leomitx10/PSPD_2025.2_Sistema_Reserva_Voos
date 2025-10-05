@@ -1,0 +1,4 @@
+requests>=2.31.0
+grpcio>=1.59.0
+grpcio-tools>=1.59.0
+websocket-client>=1.6.0
