@@ -83,16 +83,6 @@ def run():
             test_client_streaming(stub)
             test_bidirectional_streaming(stub)
 
-            print("\n" + "=" * 60)
-            print("CONCLUSÃO:")
-            print("=" * 60)
-            print("""
-1. UNARY: Ideal para operações simples e rápidas
-2. SERVER STREAMING: Melhor para enviar grandes volumes de dados ao cliente
-3. CLIENT STREAMING: Útil para receber dados em lote do cliente
-4. BIDIRECTIONAL: Perfeito para comunicação em tempo real bidirecional
-            """)
-
         except grpc.RpcError as e:
             print(f"\nErro ao conectar ao servidor: {e.details()}")
             print("Certifique-se de que o servidor está rodando na porta 50053")
