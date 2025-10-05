@@ -62,12 +62,44 @@ docker-compose down
 
 ### Kubernetes/Minikube
 
+#### Instalação do Minikube (se necessário)
+
+```bash
+# Linux
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+# macOS
+brew install minikube
+
+# Windows
+choco install minikube
+
+# Verificar instalação
+minikube version
+```
+
+#### Instalar kubectl (se necessário)
+
+```bash
+# Linux (snap)
+sudo snap install kubectl --classic
+
+# macOS
+brew install kubectl
+
+# Windows
+choco install kubernetes-cli
+
+# Verificar instalação
+kubectl version --client
+```
+
+#### Executar no Minikube
+
 ```bash
 # Iniciar Minikube
 minikube start
-
-# Instalar kubectl (se necessário)
-sudo snap install kubectl --classic
 
 # Aplicar manifestos
 kubectl apply -f k8s/
@@ -82,13 +114,77 @@ minikube service api-gateway --url
 
 **Acesse**: URL retornada pelo comando acima (ex: http://192.168.49.2:30000)
 
-## Teste de Performance
+## Testes de Performance
+
+### Instalação
 
 ```bash
 cd performance-test
+python3 -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-python test_grpc_vs_rest.py
 ```
+
+### Compilar Protos
+
+```bash
+# Compilar protos de voos
+venv/bin/python -m grpc_tools.protoc \
+  -I../module-a/proto \
+  --python_out=../module-a/proto \
+  --grpc_python_out=../module-a/proto \
+  ../module-a/proto/voos_service.proto
+
+# Compilar protos de hotel
+venv/bin/python -m grpc_tools.protoc \
+  -I../module-b/proto \
+  --python_out=../module-b/proto \
+  --grpc_python_out=../module-b/proto \
+  ../module-b/proto/hotel.proto
+```
+
+### Executar Testes
+
+```bash
+# Teste básico
+venv/bin/python test_grpc_vs_rest.py
+
+# Teste melhorado (com connection pooling, concorrência, throughput)
+venv/bin/python test_grpc_vs_rest_improved.py
+```
+
+## Exemplos gRPC
+
+O diretório `grpc-examples/` contém exemplos didáticos dos 4 tipos de comunicação gRPC:
+
+### Instalação
+
+```bash
+cd grpc-examples
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Compilar protos
+python -m grpc_tools.protoc -I./protos --python_out=. --grpc_python_out=. ./protos/examples.proto
+```
+
+### Executar Exemplos
+
+```bash
+# Terminal 1: Servidor
+python server.py
+
+# Terminal 2: Cliente
+python client.py
+```
+
+### Tipos Demonstrados
+
+- Unary RPC: Consulta simples de clima
+- Server Streaming: Stream de preços de ações
+- Client Streaming: Upload de arquivos em chunks
+- Bidirectional Streaming: Chat em tempo real
 
 ## Tecnologias
 
