@@ -38,6 +38,15 @@ router.post('/search', async (req, res) => {
         console.error('gRPC error:', error);
         return res.status(500).json({ error: 'Service unavailable' });
       }
+
+      // Add data_volta to each flight in response
+      if (data_volta && response.voos) {
+        response.voos = response.voos.map(voo => ({
+          ...voo,
+          data_volta: data_volta
+        }));
+      }
+
       res.json(response);
     });
   } catch (error) {

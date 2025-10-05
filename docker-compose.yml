@@ -1,8 +1,8 @@
 services:
-  # Serviço de Voos (Python)
+  # Serviço de Voos (Python) - Module A
   voos-service:
     build:
-      context: ./Voos
+      context: ./module-a
       dockerfile: Dockerfile
     container_name: voos-service
     ports:
@@ -16,10 +16,10 @@ services:
       timeout: 10s
       retries: 3
 
-  # Serviço de Hotéis (Go)
+  # Serviço de Hotéis (Go) - Module B
   hoteis-service:
     build:
-      context: ./Hoteis
+      context: ./module-b
       dockerfile: Dockerfile
     container_name: hoteis-service
     ports:

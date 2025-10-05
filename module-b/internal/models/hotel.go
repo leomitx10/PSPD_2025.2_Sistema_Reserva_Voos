@@ -110,9 +110,10 @@ func generateHotels() []Hotel {
 
 	var hotels []Hotel
 
-	// GARANTIR hotéis disponíveis em cada cidade (mínimo 5 por cidade)
+	// GARANTIR hotéis disponíveis em cada cidade (mínimo 30-50 por cidade para dificultar busca)
 	for _, city := range cities {
-		for i := 0; i < 5; i++ {
+		numHotels := rand.Intn(21) + 30 // 30-50 hotéis por cidade
+		for i := 0; i < numHotels; i++ {
 			accType := accommodationTypes[rand.Intn(len(accommodationTypes))]
 			stars := int32(rand.Intn(5) + 1)
 
@@ -147,8 +148,8 @@ func generateHotels() []Hotel {
 		}
 	}
 
-	// Gerar hotéis adicionais aleatórios (até 100 total)
-	for len(hotels) < 100 {
+	// Gerar hotéis adicionais aleatórios (até 1000 total)
+	for len(hotels) < 1000 {
 		city := cities[rand.Intn(len(cities))]
 		accType := accommodationTypes[rand.Intn(len(accommodationTypes))]
 		stars := int32(rand.Intn(5) + 1)

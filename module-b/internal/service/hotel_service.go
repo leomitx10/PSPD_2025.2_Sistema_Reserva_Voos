@@ -127,14 +127,17 @@ func (s *HotelServiceServer) ChatSuporte(stream pb.HotelService_ChatSuporteServe
 
 		fmt.Printf("[CHAT HOTÉIS] Recebido: %s\n", mensagem.Mensagem)
 
-		// Detect if message is about hotels or packages
+		// Detect if message is about hotels, packages or general
 		palavrasHotel := []string{"hotel", "hoteis", "hotéis", "hospedagem", "quarto", "quartos", "pousada", "resort", "hostel"}
 		palavrasPacote := []string{"pacote", "pacotes", "combo"}
+		palavrasVoo := []string{"voo", "voos", "voar", "aereo", "aéreo", "aviao", "avião", "passagem", "passagens"}
 		mensagemLower := strings.ToLower(mensagem.Mensagem)
+		contexto := mensagem.Contexto
 
-		// Respond if about hotels OR packages
+		// Check about what
 		isAboutHotel := false
 		isAboutPackage := false
+		isAboutFlight := false
 
 		for _, palavra := range palavrasHotel {
 			if strings.Contains(mensagemLower, palavra) {
@@ -150,7 +153,17 @@ func (s *HotelServiceServer) ChatSuporte(stream pb.HotelService_ChatSuporteServe
 			}
 		}
 
-		if isAboutHotel || isAboutPackage {
+		for _, palavra := range palavrasVoo {
+			if strings.Contains(mensagemLower, palavra) {
+				isAboutFlight = true
+				break
+			}
+		}
+
+		// Respond if about hotels, packages OR general message (no specific keyword and not about flights)
+		isGeneral := contexto == "geral" || (!isAboutHotel && !isAboutPackage && !isAboutFlight && contexto != "voo")
+
+		if isAboutHotel || isAboutPackage || isGeneral {
 			time.Sleep(500 * time.Millisecond) // Simulate processing
 
 			var resposta string
@@ -158,6 +171,8 @@ func (s *HotelServiceServer) ChatSuporte(stream pb.HotelService_ChatSuporteServe
 			// Generate contextual response
 			if isAboutPackage {
 				resposta = "🏨 HOTÉIS - Nossos pacotes incluem hospedagens confortáveis em hotéis, pousadas e resorts! A partir de R$ 80/noite com até 30% de desconto."
+			} else if isGeneral {
+				resposta = "🏨 HOTÉIS - Posso te ajudar com informações sobre hospedagens! Temos hotéis, pousadas, resorts e hostels."
 			} else if strings.Contains(mensagemLower, "preco") || strings.Contains(mensagemLower, "preço") || strings.Contains(mensagemLower, "barato") {
 				resposta = "💰 Temos hotéis a partir de R$ 80/noite! Use os filtros de preço para encontrar as melhores ofertas."
 			} else if strings.Contains(mensagemLower, "estrela") || strings.Contains(mensagemLower, "avaliacao") || strings.Contains(mensagemLower, "avaliação") {

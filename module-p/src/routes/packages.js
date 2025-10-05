@@ -61,14 +61,40 @@ router.post('/search', async (req, res) => {
       for (let j = 0; j < maxHotels; j++) {
         const flight = flights[i];
         const hotel = hotels[j];
-        const totalPrice = flight.preco + hotel.price;
+
+        // Calculate check-in and check-out based on flight dates
+        const checkin = data || flight.data; // Use flight departure date as check-in
+        let checkout = data_volta;
+
+        // If no return date, calculate checkout as checkin + 3 days
+        if (!checkout && checkin) {
+          const checkinDate = new Date(checkin);
+          checkinDate.setDate(checkinDate.getDate() + 3);
+          checkout = checkinDate.toISOString().split('T')[0];
+        }
+
+        // Calculate number of nights
+        const nights = checkout && checkin ?
+          Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : 1;
+
+        // Calculate total price (flight + hotel per night * nights)
+        const totalPrice = flight.preco + (hotel.price * nights);
 
         // Apply budget filter if specified
         if (!max_budget || totalPrice <= max_budget) {
+          // Add data_volta, check-in, check-out to flight
+          const flightWithDates = {
+            ...flight,
+            data_volta: data_volta || checkout,
+            checkin: checkin,
+            checkout: checkout
+          };
+
           packages.push({
-            flight,
-            hotel,
-            total_price: totalPrice
+            flight: flightWithDates,
+            hotel: { ...hotel, checkin, checkout, nights },
+            total_price: totalPrice,
+            nights: nights
           });
         }
       }

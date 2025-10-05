@@ -99,17 +99,19 @@ function setupChatWebSocket(wss) {
             contexto: 'hotel'
           });
         } else {
-          // Generic message - send help text
-          setTimeout(() => {
-            if (ws.readyState === ws.OPEN) {
-              ws.send(JSON.stringify({
-                usuario: 'suporte',
-                mensagem: 'Posso ajudar com informações sobre voos, hotéis ou pacotes. Sobre qual desses você gostaria de saber mais?',
-                timestamp: new Date().toISOString(),
-                contexto: 'geral'
-              }));
-            }
-          }, 500);
+          // No specific keyword - send to BOTH services
+          flightStream.write({
+            usuario: 'cliente',
+            mensagem: message.mensagem,
+            timestamp: timestamp,
+            contexto: 'geral'
+          });
+          hotelStream.write({
+            usuario: 'cliente',
+            mensagem: message.mensagem,
+            timestamp: timestamp,
+            contexto: 'geral'
+          });
         }
       } catch (error) {
         console.error('Error parsing message:', error);

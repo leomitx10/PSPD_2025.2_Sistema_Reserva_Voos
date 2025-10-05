@@ -341,7 +341,7 @@
 
         <div id="loading" class="loading" style="display: none;">
             <div class="spinner"></div>
-            <p>Buscando melhores opções...</p>
+            <!-- <p>Buscando melhores opções...</p> -->
         </div>
     </div>
 
@@ -377,7 +377,7 @@
                             <span class="total-label">Total:</span>
                             <span class="total-value" id="cart-total">R$ 0,00</span>
                         </div>
-                        <button class="btn-primary btn-large" onclick="finalizarCompra()">
+                        <button class="btn-action btn-primary btn-large" onclick="finalizarCompra()">
                             ✅ Finalizar Compra
                         </button>
                     </div>
@@ -406,7 +406,7 @@
                 <p class="confirm-message">Deseja adicionar este item ao carrinho?</p>
                 <div class="modal-actions">
                     <button class="btn-secondary" onclick="closeModal('confirm-modal')">Cancelar</button>
-                    <button class="btn-primary" id="btn-confirm-reservation">Adicionar ao Carrinho</button>
+                    <button class="btn-action btn-primary" id="btn-confirm-reservation">Adicionar ao Carrinho</button>
                 </div>
             </div>
         </div>
@@ -426,7 +426,7 @@
                         <label>Código do Voo *</label>
                         <input type="text" id="monitor-flight-code" placeholder="Ex: LA3090, G31234, AZ5678" />
                     </div>
-                    <button class="btn-primary btn-large" onclick="startMonitoringFromInput()">
+                    <button class="btn-action btn-primary btn-large" onclick="startMonitoringFromInput()">
                         Iniciar Monitoramento
                     </button>
                 </div>
@@ -471,6 +471,6 @@
         </div>
     </div>
 
-    <script src="app_enhanced.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
