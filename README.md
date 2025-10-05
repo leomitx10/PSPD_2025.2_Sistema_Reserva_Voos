@@ -179,13 +179,6 @@ python server.py
 python client.py
 ```
 
-### Tipos Demonstrados
-
-- Unary RPC: Consulta simples de clima
-- Server Streaming: Stream de preços de ações
-- Client Streaming: Upload de arquivos em chunks
-- Bidirectional Streaming: Chat em tempo real
-
 ## Tecnologias
 
 - **Python 3.9** + gRPC - Serviço de Voos
