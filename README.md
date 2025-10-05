@@ -149,8 +149,6 @@ venv/bin/python -m grpc_tools.protoc \
 # Teste básico
 venv/bin/python test_grpc_vs_rest.py
 
-# Teste melhorado (com connection pooling, concorrência, throughput)
-venv/bin/python test_grpc_vs_rest_improved.py
 ```
 
 ## Exemplos gRPC
@@ -166,16 +164,18 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Compilar protos
-python -m grpc_tools.protoc -I./protos --python_out=. --grpc_python_out=. ./protos/examples.proto
+python -m grpc_tools.protoc -I./protos --python_out=./python --grpc_python_out=./python ./protos/examples.proto
 ```
 
 ### Executar Exemplos
 
 ```bash
 # Terminal 1: Servidor
+cd python
 python server.py
 
 # Terminal 2: Cliente
+cd python
 python client.py
 ```
 
