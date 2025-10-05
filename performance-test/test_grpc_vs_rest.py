@@ -28,7 +28,7 @@ try:
     import voos_service_pb2
     import voos_service_pb2_grpc
 except ImportError:
-    print("⚠️  Aviso: Protos de voos não encontrados.")
+    print("Aviso: Protos de voos não encontrados.")
     voos_service_pb2 = None
     voos_service_pb2_grpc = None
 
@@ -36,7 +36,7 @@ try:
     import hotel_pb2
     import hotel_pb2_grpc
 except ImportError:
-    print("⚠️  Aviso: Protos de hotel não encontrados. Alguns testes serão ignorados.")
+    print("Aviso: Protos de hotel não encontrados. Alguns testes serão ignorados.")
     hotel_pb2 = None
     hotel_pb2_grpc = None
 
