@@ -15,7 +15,8 @@
     "cors": "^2.8.5",
     "helmet": "^7.0.0",
     "compression": "^1.7.4",
-    "express-rate-limit": "^6.10.0"
+    "express-rate-limit": "^6.10.0",
+    "ws": "^8.14.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.0"

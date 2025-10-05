@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Reservas - Voos e Hotéis</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛫 Sistema de Reservas</h1>
+            <p>Encontre os melhores voos e hotéis para sua viagem</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('flights')">✈️ Voos</button>
+            <button class="tab-btn" onclick="showTab('hotels')">🏨 Hotéis</button>
+            <button class="tab-btn" onclick="showTab('packages')">📦 Pacotes</button>
+        </div>
+
+        <!-- ============ TAB DE VOOS ============ -->
+        <div id="flights-tab" class="tab-content active">
+            <div class="search-form">
+                <h2>Buscar Voos</h2>
+                <form id="flight-form">
+                    <!-- Tipo de Viagem -->
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label>Tipo de Viagem</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="trip_type" value="oneway" checked>
+                                    <span>Só Ida</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="trip_type" value="roundtrip">
+                                    <span>Ida e Volta</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Origem e Destino -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Origem *</label>
+                            <input type="text" id="flight-origin" list="cities-list" placeholder="Ex: São Paulo" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Destino *</label>
+                            <input type="text" id="flight-destination" list="cities-list" placeholder="Ex: Rio de Janeiro" required>
+                        </div>
+                    </div>
+
+                    <!-- Datas -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Data de Ida *</label>
+                            <input type="date" id="flight-departure-date" required>
+                        </div>
+                        <div class="form-group" id="return-date-group" style="display: none;">
+                            <label>Data de Volta</label>
+                            <input type="date" id="flight-return-date">
+                        </div>
+                    </div>
+
+                    <!-- Passageiros e Classe -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Passageiros</label>
+                            <input type="number" id="flight-passengers" value="1" min="1" max="9">
+                        </div>
+                        <div class="form-group">
+                            <label>Classe</label>
+                            <select id="flight-class">
+                                <option value="">Todas</option>
+                                <option value="Econômica">Econômica</option>
+                                <option value="Executiva">Executiva</option>
+                                <option value="Primeira Classe">Primeira Classe</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Filtros Adicionais -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Companhia Aérea</label>
+                            <select id="flight-companhia">
+                                <option value="">Todas</option>
+                                <option value="LATAM">LATAM</option>
+                                <option value="GOL">GOL</option>
+                                <option value="Azul">Azul</option>
+                                <option value="TAM">TAM</option>
+                                <option value="Avianca">Avianca</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Horário</label>
+                            <select id="flight-horario">
+                                <option value="">Qualquer</option>
+                                <option value="manha">Manhã (6h-12h)</option>
+                                <option value="tarde">Tarde (12h-18h)</option>
+                                <option value="noite">Noite (18h-0h)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Orçamento e Ordenação -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Orçamento Máximo (R$)</label>
+                            <input type="number" id="flight-budget" placeholder="Ex: 1000">
+                        </div>
+                        <div class="form-group">
+                            <label>Ordenar por</label>
+                            <select id="flight-ordenacao">
+                                <option value="preco">Menor Preço</option>
+                                <option value="horario">Horário</option>
+                                <option value="duracao">Duração</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Toggle Datas Flexíveis -->
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="flexible-dates-toggle">
+                                <span>🔍 Buscar data mais barata (datas flexíveis)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-search">🔍 Buscar Voos</button>
+                    <a href="#packages-tab" class="btn-secondary" onclick="showTab('packages')">
+                        📦 Ver Pacotes (Voo + Hotel) com até 30% de desconto
+                    </a>
+                </form>
+            </div>
+            <div id="flight-results" class="results"></div>
+        </div>
+
+        <!-- ============ TAB DE HOTÉIS ============ -->
+        <div id="hotels-tab" class="tab-content">
+            <div class="search-form">
+                <h2>Buscar Hospedagens</h2>
+                <form id="hotel-form">
+                    <!-- Destino -->
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label>Destino *</label>
+                            <input type="text" id="hotel-destination" list="cities-list" placeholder="Ex: Rio de Janeiro" required>
+                        </div>
+                    </div>
+
+                    <!-- Check-in e Check-out -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Check-in *</label>
+                            <input type="date" id="hotel-checkin" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Check-out *</label>
+                            <input type="date" id="hotel-checkout" required>
+                        </div>
+                    </div>
+
+                    <!-- Quartos e Hóspedes -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Quartos</label>
+                            <input type="number" id="hotel-rooms" value="1" min="1" max="10">
+                        </div>
+                        <div class="form-group">
+                            <label>Hóspedes *</label>
+                            <input type="number" id="hotel-guests" value="2" min="1" max="20" required>
+                        </div>
+                    </div>
+
+                    <!-- Tipo e Estrelas -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Tipo de Acomodação</label>
+                            <select id="hotel-type">
+                                <option value="">Todos</option>
+                                <option value="Hotel">Hotel</option>
+                                <option value="Pousada">Pousada</option>
+                                <option value="Resort">Resort</option>
+                                <option value="Hostel">Hostel</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Avaliação Mínima</label>
+                            <select id="hotel-min-rating">
+                                <option value="0">Qualquer</option>
+                                <option value="1">1⭐</option>
+                                <option value="2">2⭐</option>
+                                <option value="3">3⭐</option>
+                                <option value="4">4⭐</option>
+                                <option value="5">5⭐</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Orçamento e Ordenação -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Orçamento Máximo (R$/noite)</label>
+                            <input type="number" id="hotel-budget" placeholder="Ex: 500">
+                        </div>
+                        <div class="form-group">
+                            <label>Ordenar por</label>
+                            <select id="hotel-order">
+                                <option value="price">Menor Preço</option>
+                                <option value="rating">Avaliação</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Toggle Datas Flexíveis -->
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="flexible-stay-toggle">
+                                <span>🔍 Buscar melhores ofertas (datas flexíveis)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-search">🔍 Buscar Hospedagens</button>
+                    <a href="#packages-tab" class="btn-secondary" onclick="showTab('packages')">
+                        📦 Ver Pacotes (Voo + Hotel) com até 30% de desconto
+                    </a>
+                </form>
+            </div>
+            <div id="hotel-results" class="results"></div>
+        </div>
+
+        <!-- ============ TAB DE PACOTES ============ -->
+        <div id="packages-tab" class="tab-content">
+            <div class="search-form">
+                <h2>Buscar Pacotes Completos (Voo + Hotel)</h2>
+                <form id="package-form">
+                    <!-- Origem e Destino -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Origem *</label>
+                            <input type="text" id="package-origin" list="cities-list" placeholder="Ex: São Paulo" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Destino *</label>
+                            <input type="text" id="package-destination" list="cities-list" placeholder="Ex: Rio de Janeiro" required>
+                        </div>
+                    </div>
+
+                    <!-- Datas -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Data de Ida *</label>
+                            <input type="date" id="package-start-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Data de Volta *</label>
+                            <input type="date" id="package-end-date" required>
+                        </div>
+                    </div>
+
+                    <!-- Quartos e Hóspedes -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Quartos</label>
+                            <input type="number" id="package-rooms" value="1" min="1" max="10">
+                        </div>
+                        <div class="form-group">
+                            <label>Hóspedes *</label>
+                            <input type="number" id="package-guests" value="2" min="1" max="20" required>
+                        </div>
+                    </div>
+
+                    <!-- Filtros Adicionais -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Classe do Voo</label>
+                            <select id="package-flight-class">
+                                <option value="">Todas</option>
+                                <option value="Econômica">Econômica</option>
+                                <option value="Executiva">Executiva</option>
+                                <option value="Primeira Classe">Primeira Classe</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Avaliação Mínima (Hotel)</label>
+                            <select id="package-min-rating">
+                                <option value="0">Qualquer</option>
+                                <option value="1">1⭐</option>
+                                <option value="2">2⭐</option>
+                                <option value="3">3⭐</option>
+                                <option value="4">4⭐</option>
+                                <option value="5">5⭐</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Orçamento -->
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label>Orçamento Total Máximo (R$)</label>
+                            <input type="number" id="package-budget" placeholder="Ex: 3000">
+                        </div>
+                    </div>
+
+                    <!-- Toggle Pacotes Mais Baratos -->
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="flexible-package-toggle">
+                                <span>🔍 Buscar pacotes mais baratos (datas flexíveis)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-search">🔍 Buscar Pacotes</button>
+                </form>
+            </div>
+            <div id="package-results" class="results"></div>
+        </div>
+
+        <!-- Datalist para cidades -->
+        <datalist id="cities-list">
+            <option value="São Paulo">
+            <option value="Rio de Janeiro">
+            <option value="Brasília">
+            <option value="Belo Horizonte">
+            <option value="Salvador">
+            <option value="Recife">
+            <option value="Fortaleza">
+            <option value="Manaus">
+            <option value="Porto Alegre">
+        </datalist>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Buscando melhores opções...</p>
+        </div>
+    </div>
+
+    <script src="app_v2.js"></script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: voos-service
+  labels:
+    app: voos-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: voos-service
+  template:
+    metadata:
+      labels:
+        app: voos-service
+    spec:
+      containers:
+      - name: voos-service
+        image: modulo-a:v1
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 50051
+          name: grpc
+          protocol: TCP
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          tcpSocket:
+            port: 50051
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 50051
+          initialDelaySeconds: 5
+          periodSeconds: 5

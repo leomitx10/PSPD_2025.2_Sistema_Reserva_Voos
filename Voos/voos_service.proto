@@ -3,7 +3,14 @@ syntax = "proto3";
 package voos;
 
 service VoosService {
+    // 1. Unary RPC - Consulta simples de voos
     rpc ConsultarVoos(ConsultaVoosRequest) returns (ConsultaVoosResponse);
+
+    // 2. Server Streaming RPC - Monitoramento de voo em tempo real
+    rpc MonitorarVoo(MonitorarVooRequest) returns (stream StatusVooUpdate);
+
+    // 3. Bidirectional Streaming RPC - Chat de suporte
+    rpc ChatSuporte(stream ChatMessage) returns (stream ChatMessage);
 }
 
 message Voo {
@@ -37,4 +44,25 @@ message ConsultaVoosResponse {
     repeated Voo voos = 1;
     int32 total_encontrados = 2;
     string tempo_processamento = 3;
+}
+
+// Mensagens para MonitorarVoo (Server Streaming)
+message MonitorarVooRequest {
+    string numero_voo = 1;
+}
+
+message StatusVooUpdate {
+    string numero_voo = 1;
+    string status = 2; // "aguardando_embarque", "embarcando", "decolou", "em_voo", "pousou", "finalizado"
+    string mensagem = 3;
+    string timestamp = 4;
+    int32 progresso_percentual = 5; // 0-100
+}
+
+// Mensagens para ChatSuporte (Bidirectional Streaming)
+message ChatMessage {
+    string usuario = 1; // "cliente" ou "suporte"
+    string mensagem = 2;
+    string timestamp = 3;
+    string contexto = 4; // "voo", "hotel", "pacote", "geral"
 }

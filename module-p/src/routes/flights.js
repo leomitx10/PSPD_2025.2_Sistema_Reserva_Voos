@@ -3,25 +3,31 @@ const { getFlightClient } = require('../grpc/clients');
 const router = express.Router();
 
 // Search flights with filters
-router.get('/search', async (req, res) => {
+router.post('/search', async (req, res) => {
   try {
     const {
       origem,
       destino,
       data,
+      data_volta,
       preco_max,
       companhia_aerea,
       faixa_horario,
-      ordenacao = 'preco'
-    } = req.query;
+      ordenacao = 'preco',
+      classe,
+      passageiros = 1,
+      tipo_viagem = 'oneway',
+      datas_flexiveis = false
+    } = req.body;
 
     const client = getFlightClient();
-    
+
+    // Se datas flexíveis, buscar sem filtro de data
     const request = {
       origem,
       destino,
-      data,
-      preco_max: preco_max ? parseFloat(preco_max) : undefined,
+      data: datas_flexiveis ? '' : data,
+      preco_max: preco_max ? parseFloat(preco_max) : 0,
       companhia_aerea,
       faixa_horario,
       ordenacao
@@ -38,6 +44,47 @@ router.get('/search', async (req, res) => {
     console.error('Error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
+});
+
+// Monitor flight - Server Streaming RPC via Server-Sent Events
+router.get('/monitor/:numeroVoo', (req, res) => {
+  const { numeroVoo } = req.params;
+
+  // Set headers for Server-Sent Events
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
+  const client = getFlightClient();
+
+  // Create server streaming call
+  const call = client.MonitorarVoo({ numero_voo: numeroVoo });
+
+  call.on('data', (update) => {
+    // Send update to client via SSE
+    res.write(`data: ${JSON.stringify({
+      numero_voo: update.numero_voo,
+      status: update.status,
+      mensagem: update.mensagem,
+      timestamp: update.timestamp,
+      progresso_percentual: update.progresso_percentual
+    })}\n\n`);
+  });
+
+  call.on('end', () => {
+    res.end();
+  });
+
+  call.on('error', (error) => {
+    console.error('Stream error:', error);
+    res.write(`data: ${JSON.stringify({ error: 'Erro no monitoramento' })}\n\n`);
+    res.end();
+  });
+
+  // Clean up on client disconnect
+  req.on('close', () => {
+    call.cancel();
+  });
 });
 
 module.exports = router;

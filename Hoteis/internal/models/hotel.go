@@ -57,27 +57,30 @@ func (hr *HotelRepository) matchesFilters(hotel Hotel, city string, minStars, ma
 	if city != "" && !strings.EqualFold(hotel.City, city) {
 		return false
 	}
-	
+
 	if minStars > 0 && hotel.Stars < minStars {
 		return false
 	}
-	
+
 	if maxStars > 0 && hotel.Stars > maxStars {
 		return false
 	}
-	
+
 	if minPrice > 0 && hotel.BasePrice < minPrice {
 		return false
 	}
-	
+
 	if maxPrice > 0 && hotel.BasePrice > maxPrice {
 		return false
 	}
-	
+
 	if accommodationType != "" && !strings.EqualFold(hotel.AccommodationType, accommodationType) {
 		return false
 	}
-	
+
+	// Note: Amenities filtering can be added here if needed in the future
+	// Currently all hotels with matching criteria are returned regardless of specific amenities
+
 	return true
 }
 
@@ -101,45 +104,86 @@ func (hr *HotelRepository) sortHotels(hotels []Hotel, orderBy string) {
 }
 
 func generateHotels() []Hotel {
-	cities := []string{"São Paulo", "Rio de Janeiro", "Brasília", "Salvador", "Fortaleza"}
+	cities := []string{"São Paulo", "Rio de Janeiro", "Brasília", "Salvador", "Fortaleza", "Belo Horizonte", "Recife", "Manaus", "Porto Alegre"}
 	accommodationTypes := []string{"Hotel", "Pousada", "Resort", "Hostel"}
-	amenities := []string{"Wi-Fi", "Piscina", "Academia", "Spa", "Restaurante", "Estacionamento"}
-	
+	amenities := []string{"Wi-Fi", "Piscina", "Academia", "Spa", "Restaurante", "Estacionamento", "Café da Manhã", "Ar Condicionado"}
+
 	var hotels []Hotel
-	
-	for i := 0; i < 50; i++ {
+
+	// GARANTIR hotéis disponíveis em cada cidade (mínimo 5 por cidade)
+	for _, city := range cities {
+		for i := 0; i < 5; i++ {
+			accType := accommodationTypes[rand.Intn(len(accommodationTypes))]
+			stars := int32(rand.Intn(5) + 1)
+
+			// Price varies by stars and accommodation type
+			basePrice := float64(int(stars)*80 + rand.Intn(300))
+			if accType == "Resort" {
+				basePrice *= 1.8
+			} else if accType == "Hostel" {
+				basePrice *= 0.35
+			} else if accType == "Pousada" {
+				basePrice *= 0.7
+			}
+
+			// Random amenities
+			selectedAmenities := make([]string, 0)
+			for _, amenity := range amenities {
+				if rand.Float32() < 0.65 {
+					selectedAmenities = append(selectedAmenities, amenity)
+				}
+			}
+
+			hotels = append(hotels, Hotel{
+				ID:                generateID(),
+				Name:              generateHotelName(city, accType),
+				City:              city,
+				Stars:             stars,
+				BasePrice:         basePrice,
+				Available:         true, // Sempre disponível
+				Amenities:         selectedAmenities,
+				AccommodationType: accType,
+			})
+		}
+	}
+
+	// Gerar hotéis adicionais aleatórios (até 100 total)
+	for len(hotels) < 100 {
 		city := cities[rand.Intn(len(cities))]
 		accType := accommodationTypes[rand.Intn(len(accommodationTypes))]
 		stars := int32(rand.Intn(5) + 1)
-		
-		// Price varies by stars and accommodation type
-		basePrice := float64(int(stars)*50 + rand.Intn(200))
+
+		basePrice := float64(int(stars)*80 + rand.Intn(300))
 		if accType == "Resort" {
-			basePrice *= 1.5
+			basePrice *= 1.8
 		} else if accType == "Hostel" {
-			basePrice *= 0.4
+			basePrice *= 0.35
+		} else if accType == "Pousada" {
+			basePrice *= 0.7
 		}
-		
-		// Random amenities
+
 		selectedAmenities := make([]string, 0)
 		for _, amenity := range amenities {
-			if rand.Float32() < 0.6 {
+			if rand.Float32() < 0.65 {
 				selectedAmenities = append(selectedAmenities, amenity)
 			}
 		}
-		
+
+		// Alguns hotéis podem estar indisponíveis
+		available := rand.Float32() < 0.85
+
 		hotels = append(hotels, Hotel{
 			ID:                generateID(),
 			Name:              generateHotelName(city, accType),
 			City:              city,
 			Stars:             stars,
 			BasePrice:         basePrice,
-			Available:         true,
+			Available:         available,
 			Amenities:         selectedAmenities,
 			AccommodationType: accType,
 		})
 	}
-	
+
 	return hotels
 }
 

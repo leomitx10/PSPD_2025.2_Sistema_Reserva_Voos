@@ -1,0 +1,53 @@
+services:
+  # Serviço de Voos (Python)
+  voos-service:
+    build:
+      context: ./Voos
+      dockerfile: Dockerfile
+    container_name: voos-service
+    ports:
+      - "50051:50051"
+    networks:
+      - grpc-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import socket; s=socket.socket(); s.connect((\"localhost\", 50051)); s.close()' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Serviço de Hotéis (Go)
+  hoteis-service:
+    build:
+      context: ./Hoteis
+      dockerfile: Dockerfile
+    container_name: hoteis-service
+    ports:
+      - "50052:50052"
+    networks:
+      - grpc-network
+    restart: unless-stopped
+
+  # API Gateway (Node.js)
+  api-gateway:
+    build:
+      context: ./module-p
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - FLIGHT_SERVICE_HOST=voos-service
+      - FLIGHT_SERVICE_PORT=50051
+      - HOTEL_SERVICE_HOST=hoteis-service
+      - HOTEL_SERVICE_PORT=50052
+    depends_on:
+      - voos-service
+      - hoteis-service
+    networks:
+      - grpc-network
+    restart: unless-stopped
+
+networks:
+  grpc-network:
+    driver: bridge

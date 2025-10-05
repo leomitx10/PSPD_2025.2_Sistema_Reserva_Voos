@@ -5,7 +5,14 @@ package hotel;
 option go_package = "./proto";
 
 service HotelService {
+  // 1. Unary RPC - Busca simples de hotéis
   rpc SearchHotels(SearchHotelsRequest) returns (SearchHotelsResponse);
+
+  // 2. Client Streaming RPC - Finalizar compra do carrinho
+  rpc FinalizarCompra(stream ItemCarrinho) returns (RespostaCompra);
+
+  // 3. Bidirectional Streaming RPC - Chat de suporte
+  rpc ChatSuporte(stream ChatMessage) returns (stream ChatMessage);
 }
 
 message SearchHotelsRequest {
@@ -33,4 +40,29 @@ message Hotel {
   bool available = 6;
   repeated string amenities = 7;
   string accommodation_type = 8;
+}
+
+// Mensagens para FinalizarCompra (Client Streaming)
+message ItemCarrinho {
+  string tipo = 1; // "voo", "hotel", "pacote"
+  string id = 2;
+  string detalhes = 3; // JSON com detalhes do item
+  double preco = 4;
+}
+
+message RespostaCompra {
+  bool sucesso = 1;
+  string codigo_confirmacao = 2;
+  double valor_total = 3;
+  int32 total_itens = 4;
+  repeated string erros = 5;
+  string timestamp = 6;
+}
+
+// Mensagens para ChatSuporte (Bidirectional Streaming)
+message ChatMessage {
+  string usuario = 1; // "cliente" ou "suporte"
+  string mensagem = 2;
+  string timestamp = 3;
+  string contexto = 4; // "voo", "hotel", "pacote", "geral"
 }

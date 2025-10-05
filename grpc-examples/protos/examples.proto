@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package examples;
+
+// Serviço que demonstra os 4 tipos de comunicação gRPC
+service GrpcExamplesService {
+    // 1. Unary RPC - Requisição/Resposta simples
+    rpc UnaryCall(UnaryRequest) returns (UnaryResponse);
+
+    // 2. Server Streaming RPC - Servidor envia stream de respostas
+    rpc ServerStreamingCall(ServerStreamingRequest) returns (stream ServerStreamingResponse);
+
+    // 3. Client Streaming RPC - Cliente envia stream de requisições
+    rpc ClientStreamingCall(stream ClientStreamingRequest) returns (ClientStreamingResponse);
+
+    // 4. Bidirectional Streaming RPC - Ambos enviam streams
+    rpc BidirectionalStreamingCall(stream BidirectionalRequest) returns (stream BidirectionalResponse);
+}
+
+// Mensagens para Unary Call
+message UnaryRequest {
+    string message = 1;
+}
+
+message UnaryResponse {
+    string reply = 1;
+    string timestamp = 2;
+}
+
+// Mensagens para Server Streaming
+message ServerStreamingRequest {
+    int32 count = 1;
+    string prefix = 2;
+}
+
+message ServerStreamingResponse {
+    int32 sequence = 1;
+    string message = 2;
+}
+
+// Mensagens para Client Streaming
+message ClientStreamingRequest {
+    string data = 1;
+}
+
+message ClientStreamingResponse {
+    int32 total_received = 1;
+    string summary = 2;
+}
+
+// Mensagens para Bidirectional Streaming
+message BidirectionalRequest {
+    string message = 1;
+}
+
+message BidirectionalResponse {
+    string echo = 1;
+    string processed_at = 2;
+}
