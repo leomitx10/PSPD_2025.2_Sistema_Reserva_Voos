@@ -32,7 +32,7 @@ class VoosClient:
             response = self.stub.ConsultarVoos(request)
             return response
         except grpc.RpcError as e:
-            print(f"Erro na consulta: {e}")
+            print(f"Erro: {e}")
             return None
     
     def close(self):

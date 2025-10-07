@@ -2,7 +2,7 @@
 
 Serviço de consulta e monitoramento de voos usando gRPC.
 
-## 📁 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 module-a/
@@ -23,22 +23,22 @@ module-a/
 └── README.md               # Este arquivo
 ```
 
-## 🚀 Como Executar
+## Como Executar
 
-### 1. Instalar Dependências
+### Instalar Dependências
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Compilar Proto Files (se necessário)
+### Compilar Proto Files (se necessário)
 
 ```bash
 cd proto
 python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. voos_service.proto
 ```
 
-### 3. Iniciar o Servidor gRPC
+### Iniciar o Servidor gRPC
 
 ```bash
 python cmd/server/main.py
@@ -46,13 +46,13 @@ python cmd/server/main.py
 
 O servidor estará disponível em `localhost:50051`
 
-### 4. Testar com Cliente
+### Testar com Cliente
 
 ```bash
 python cmd/client/main.py
 ```
 
-## 🐳 Docker
+## Docker
 
 ### Build
 
@@ -66,13 +66,13 @@ docker build -t voos-service .
 docker run -p 50051:50051 voos-service
 ```
 
-## 🔌 Tipos de Comunicação gRPC Implementados
+## Tipos de Comunicação gRPC Implementados
 
 - **Unary RPC**: `ConsultarVoos` - Busca de voos com filtros
 - **Server Streaming RPC**: `MonitorarVoo` - Monitoramento em tempo real
 - **Bidirectional Streaming RPC**: `ChatSuporte` - Chat de suporte
 
-## 📡 Endpoints gRPC
+## Endpoints gRPC
 
 ### ConsultarVoos (Unary)
 Busca voos com filtros opcionais.

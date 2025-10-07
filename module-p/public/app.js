@@ -66,12 +66,41 @@ function openModal(modalId) {
 
 function closeModal(modalId) {
     document.getElementById(modalId).classList.remove('active');
+    
+    // Clean up monitoring resources when closing monitor modal
+    if (modalId === 'monitor-modal') {
+        if (monitorEventSource) {
+            monitorEventSource.close();
+            monitorEventSource = null;
+        }
+        if (monitorDisplayInterval) {
+            clearInterval(monitorDisplayInterval);
+            monitorDisplayInterval = null;
+        }
+        monitorUpdatesQueue = [];
+    }
 }
 
 // Close modal when clicking outside
 document.addEventListener('click', (e) => {
     if (e.target.classList.contains('modal')) {
+        const modalId = e.target.id;
         e.target.classList.remove('active');
+        
+        // Clean up monitoring resources when closing monitor modal
+        if (modalId === 'monitor-modal') {
+            if (typeof monitorEventSource !== 'undefined' && monitorEventSource) {
+                monitorEventSource.close();
+                monitorEventSource = null;
+            }
+            if (typeof monitorDisplayInterval !== 'undefined' && monitorDisplayInterval) {
+                clearInterval(monitorDisplayInterval);
+                monitorDisplayInterval = null;
+            }
+            if (typeof monitorUpdatesQueue !== 'undefined') {
+                monitorUpdatesQueue = [];
+            }
+        }
     }
 });
 
@@ -790,6 +819,8 @@ async function finalizarCompra() {
 
 // ============ MONITORAR VOO (Server Streaming) ============
 let monitorEventSource = null;
+let monitorUpdatesQueue = [];
+let monitorDisplayInterval = null;
 
 function openMonitorModal() {
     // Reset modal state
@@ -799,6 +830,14 @@ function openMonitorModal() {
     document.getElementById('monitor-updates').innerHTML = '';
     document.getElementById('monitor-progress').style.width = '0%';
     document.getElementById('new-monitoring-btn').style.display = 'none';
+    
+    // Clear any existing intervals and queues
+    if (monitorDisplayInterval) {
+        clearInterval(monitorDisplayInterval);
+        monitorDisplayInterval = null;
+    }
+    monitorUpdatesQueue = [];
+    
     openModal('monitor-modal');
 }
 
@@ -823,42 +862,99 @@ function startMonitoring(numeroVoo) {
     if (monitorEventSource) {
         monitorEventSource.close();
     }
+    
+    // Clear any existing intervals and queues
+    if (monitorDisplayInterval) {
+        clearInterval(monitorDisplayInterval);
+        monitorDisplayInterval = null;
+    }
+    monitorUpdatesQueue = [];
 
     const updatesDiv = document.getElementById('monitor-updates');
     const progressBar = document.getElementById('monitor-progress');
+    let isCompleted = false; // Flag to track if monitoring completed successfully
 
     // Use EventSource for Server-Sent Events (alternative to gRPC streaming in browser)
     monitorEventSource = new EventSource(`${API_BASE}/flights/monitor/${numeroVoo}`);
 
     monitorEventSource.onmessage = (event) => {
         const update = JSON.parse(event.data);
+        
+        // Check if this is the final update
+        if (update.status === 'finalizado') {
+            isCompleted = true;
+        }
+        
+        // Add update to queue instead of showing immediately
+        monitorUpdatesQueue.push(update);
+        
+        // Start displaying updates if not already started
+        if (!monitorDisplayInterval) {
+            startDisplayingUpdates(updatesDiv, progressBar);
+        }
+    };
 
-        // Add update to list
+    monitorEventSource.onerror = (error) => {
+        // Only show error if the monitoring didn't complete successfully
+        if (!isCompleted) {
+            console.error('EventSource error:', error);
+            showNotification('Erro no monitoramento', 'error');
+        }
+        monitorEventSource.close();
+    };
+}
+
+function startDisplayingUpdates(updatesDiv, progressBar) {
+    monitorDisplayInterval = setInterval(() => {
+        if (monitorUpdatesQueue.length === 0) {
+            return;
+        }
+        
+        // Get the oldest update from queue (FIFO)
+        const update = monitorUpdatesQueue.shift();
+        
+        // Add update to list with animation
         const updateElement = document.createElement('div');
         updateElement.className = 'monitor-update';
+        updateElement.style.opacity = '0';
+        updateElement.style.transform = 'translateY(-10px)';
         updateElement.innerHTML = `
             <div class="update-time">${update.timestamp}</div>
             <div class="update-status">${update.status}</div>
             <div class="update-message">${update.mensagem}</div>
         `;
+        
+        // Insert at the top
         updatesDiv.insertBefore(updateElement, updatesDiv.firstChild);
+        
+        // Animate in
+        setTimeout(() => {
+            updateElement.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            updateElement.style.opacity = '1';
+            updateElement.style.transform = 'translateY(0)';
+        }, 50);
 
-        // Update progress bar
+        // Update progress bar with animation
+        progressBar.style.transition = 'width 0.8s ease';
         progressBar.style.width = `${update.progresso_percentual}%`;
 
         // Close connection when finished
         if (update.status === 'finalizado') {
-            monitorEventSource.close();
-            showNotification('Monitoramento concluído!', 'success');
-            // Mostrar botão de novo monitoramento
-            document.getElementById('new-monitoring-btn').style.display = 'block';
+            // Stop the interval after showing all updates
+            if (monitorUpdatesQueue.length === 0) {
+                clearInterval(monitorDisplayInterval);
+                monitorDisplayInterval = null;
+            }
+            
+            // Don't close EventSource here, let it close naturally to avoid error event
+            
+            setTimeout(() => {
+                showNotification('Monitoramento concluído!', 'success');
+                // Mostrar botão de novo monitoramento
+                document.getElementById('new-monitoring-btn').style.display = 'block';
+            }, 1000);
         }
-    };
-
-    monitorEventSource.onerror = () => {
-        monitorEventSource.close();
-        showNotification('Erro no monitoramento', 'error');
-    };
+    }, 2000); // Mostrar uma atualização a cada 2 segundos
 }
 
 // Função para resetar o monitoramento e permitir um novo
@@ -868,6 +964,13 @@ function resetMonitoring() {
         monitorEventSource.close();
         monitorEventSource = null;
     }
+    
+    // Clear intervals and queues
+    if (monitorDisplayInterval) {
+        clearInterval(monitorDisplayInterval);
+        monitorDisplayInterval = null;
+    }
+    monitorUpdatesQueue = [];
     
     // Resetar estado da modal
     document.getElementById('monitor-input-section').style.display = 'block';
