@@ -101,6 +101,12 @@ kubectl version --client
 # Iniciar Minikube
 minikube start
 
+# Configurar ambiente Docker do Minikube e fazer build das imagens
+eval $(minikube docker-env)
+docker build -t modulo-a:v1 ./module-a
+docker build -t modulo-b:v1 ./module-b
+docker build -t modulo-p:v1 ./module-p
+
 # Aplicar manifestos
 kubectl apply -f k8s/
 
