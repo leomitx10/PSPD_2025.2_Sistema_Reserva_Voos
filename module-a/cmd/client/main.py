@@ -3,7 +3,6 @@ import sys
 import os
 from datetime import datetime, timedelta
 
-# Adicionar path dos protos
 proto_path = os.path.join(os.path.dirname(__file__), '../../proto')
 sys.path.insert(0, proto_path)
 
@@ -68,24 +67,61 @@ def teste_carga():
 if __name__ == '__main__':
     client = VoosClient()
     
-    print("Teste")
-    response = client.consultar_voos(
-        origem="São Paulo",
-        destino="Rio de Janeiro",
-        data=(datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d"),
-        ordenacao="preco"
-    )
+    print("=" * 60)
+    print("TESTE 1: Consulta sem filtros (todos os voos)")
+    print("=" * 60)
+    response = client.consultar_voos()
     
     if response:
         print(f"Voos encontrados: {response.total_encontrados}")
         print(f"Tempo de processamento: {response.tempo_processamento}")
-        for i, voo in enumerate(response.voos[:5]):  # Mostrar apenas os 5 primeiros
+        for i, voo in enumerate(response.voos[:3]): 
             print(f"\n{i+1}. {voo.companhia_aerea} {voo.numero_voo}")
             print(f"   {voo.origem} → {voo.destino}")
             print(f"   {voo.data} {voo.horario_partida} - {voo.horario_chegada}")
             print(f"   R$ {voo.preco:.2f} | {voo.assentos_disponiveis} assentos")
     
-    print("Teste de Carga")
-    teste_carga()
+    print("\n" + "=" * 60)
+    print("TESTE 2: Consulta apenas por origem (São Paulo)")
+    print("=" * 60)
+    response = client.consultar_voos(origem="São Paulo")
+    
+    if response:
+        print(f"Voos encontrados: {response.total_encontrados}")
+        print(f"Tempo de processamento: {response.tempo_processamento}")
+        for i, voo in enumerate(response.voos[:3]): 
+            print(f"\n{i+1}. {voo.companhia_aerea} {voo.numero_voo}")
+            print(f"   {voo.origem} → {voo.destino}")
+            print(f"   {voo.data} {voo.horario_partida} - {voo.horario_chegada}")
+            print(f"   R$ {voo.preco:.2f} | {voo.assentos_disponiveis} assentos")
+    
+    print("\n" + "=" * 60)
+    print("TESTE 3: Consulta por hoje")
+    print("=" * 60)
+    hoje = datetime.now().strftime("%Y-%m-%d")
+    response = client.consultar_voos(data=hoje)
+    
+    if response:
+        print(f"Voos encontrados para hoje ({hoje}): {response.total_encontrados}")
+        print(f"Tempo de processamento: {response.tempo_processamento}")
+        for i, voo in enumerate(response.voos[:3]):  
+            print(f"\n{i+1}. {voo.companhia_aerea} {voo.numero_voo}")
+            print(f"   {voo.origem} → {voo.destino}")
+            print(f"   {voo.data} {voo.horario_partida} - {voo.horario_chegada}")
+            print(f"   R$ {voo.preco:.2f} | {voo.assentos_disponiveis} assentos")
+    
+    print("\n" + "=" * 60)
+    print("TESTE 4: Consulta por preço máximo (R$ 300)")
+    print("=" * 60)
+    response = client.consultar_voos(preco_max=300)
+    
+    if response:
+        print(f"Voos encontrados até R$ 300: {response.total_encontrados}")
+        print(f"Tempo de processamento: {response.tempo_processamento}")
+        for i, voo in enumerate(response.voos[:3]):  
+            print(f"\n{i+1}. {voo.companhia_aerea} {voo.numero_voo}")
+            print(f"   {voo.origem} → {voo.destino}")
+            print(f"   {voo.data} {voo.horario_partida} - {voo.horario_chegada}")
+            print(f"   R$ {voo.preco:.2f} | {voo.assentos_disponiveis} assentos")
     
     client.close()
