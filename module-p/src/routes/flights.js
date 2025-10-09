@@ -2,7 +2,6 @@ const express = require('express');
 const { getFlightClient } = require('../grpc/clients');
 const router = express.Router();
 
-// Search flights with filters
 router.post('/search', async (req, res) => {
   try {
     const {
@@ -22,7 +21,6 @@ router.post('/search', async (req, res) => {
 
     const client = getFlightClient();
 
-    // Se datas flexíveis, buscar sem filtro de data
     const request = {
       origem,
       destino,
@@ -39,7 +37,6 @@ router.post('/search', async (req, res) => {
         return res.status(500).json({ error: 'Service unavailable' });
       }
 
-      // Add data_volta to each flight in response
       if (data_volta && response.voos) {
         response.voos = response.voos.map(voo => ({
           ...voo,
@@ -55,22 +52,18 @@ router.post('/search', async (req, res) => {
   }
 });
 
-// Monitor flight - Server Streaming RPC via Server-Sent Events
 router.get('/monitor/:numeroVoo', (req, res) => {
   const { numeroVoo } = req.params;
 
-  // Set headers for Server-Sent Events
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
 
   const client = getFlightClient();
 
-  // Create server streaming call
   const call = client.MonitorarVoo({ numero_voo: numeroVoo });
 
   call.on('data', (update) => {
-    // Send update to client via SSE
     res.write(`data: ${JSON.stringify({
       numero_voo: update.numero_voo,
       status: update.status,
@@ -90,7 +83,6 @@ router.get('/monitor/:numeroVoo', (req, res) => {
     res.end();
   });
 
-  // Clean up on client disconnect
   req.on('close', () => {
     call.cancel();
   });

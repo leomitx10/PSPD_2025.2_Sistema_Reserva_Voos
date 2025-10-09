@@ -2,7 +2,6 @@ const express = require('express');
 const { getHotelClient } = require('../grpc/clients');
 const router = express.Router();
 
-// Finalizar Compra - Client Streaming RPC
 router.post('/checkout', async (req, res) => {
   try {
     const { items } = req.body;
@@ -13,14 +12,12 @@ router.post('/checkout', async (req, res) => {
 
     const client = getHotelClient();
 
-    // Create client streaming call
     const call = client.FinalizarCompra((error, response) => {
       if (error) {
         console.error('gRPC error:', error);
         return res.status(500).json({ error: 'Erro ao processar compra' });
       }
 
-      // Send response back to client
       res.json({
         sucesso: response.sucesso,
         codigo_confirmacao: response.codigo_confirmacao || response.codigoConfirmacao,
@@ -31,7 +28,6 @@ router.post('/checkout', async (req, res) => {
       });
     });
 
-    // Stream all cart items to server
     items.forEach((item) => {
       call.write({
         tipo: item.tipo,
@@ -41,7 +37,6 @@ router.post('/checkout', async (req, res) => {
       });
     });
 
-    // Signal end of stream
     call.end();
 
   } catch (error) {

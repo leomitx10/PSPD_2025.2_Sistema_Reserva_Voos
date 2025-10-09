@@ -7,11 +7,9 @@ function setupChatWebSocket(wss) {
     const flightClient = getFlightClient();
     const hotelClient = getHotelClient();
 
-    // Create bidirectional streams for both services
     const flightStream = flightClient.ChatSuporte();
     const hotelStream = hotelClient.ChatSuporte();
 
-    // Handle messages from flight service
     flightStream.on('data', (message) => {
       if (ws.readyState === ws.OPEN) {
         ws.send(JSON.stringify({
@@ -23,7 +21,6 @@ function setupChatWebSocket(wss) {
       }
     });
 
-    // Handle messages from hotel service
     hotelStream.on('data', (message) => {
       if (ws.readyState === ws.OPEN) {
         ws.send(JSON.stringify({
@@ -35,7 +32,6 @@ function setupChatWebSocket(wss) {
       }
     });
 
-    // Handle errors
     flightStream.on('error', (error) => {
       console.error('Flight chat stream error:', error);
     });
@@ -44,7 +40,6 @@ function setupChatWebSocket(wss) {
       console.error('Hotel chat stream error:', error);
     });
 
-    // Send welcome message
     setTimeout(() => {
       if (ws.readyState === ws.OPEN) {
         ws.send(JSON.stringify({
@@ -56,19 +51,16 @@ function setupChatWebSocket(wss) {
       }
     }, 500);
 
-    // Handle messages from client
     ws.on('message', (data) => {
       try {
         const message = JSON.parse(data);
         const timestamp = new Date().toISOString();
 
-        // Detect context based on keywords
         const mensagemLower = message.mensagem.toLowerCase();
         const isAboutPackage = /pacote|pacotes|combo/.test(mensagemLower);
         const isAboutFlight = /voo|voos|voar|aereo|aéreo|aviao|avião|passagem|passagens/.test(mensagemLower);
         const isAboutHotel = /hotel|hoteis|hotéis|hospedagem|quarto|quartos|pousada|resort|hostel/.test(mensagemLower);
 
-        // If about packages, ALWAYS send to both services
         if (isAboutPackage) {
           flightStream.write({
             usuario: 'cliente',
@@ -83,7 +75,6 @@ function setupChatWebSocket(wss) {
             contexto: 'pacote'
           });
         } else if (isAboutFlight) {
-          // Only about flights
           flightStream.write({
             usuario: 'cliente',
             mensagem: message.mensagem,
@@ -91,7 +82,6 @@ function setupChatWebSocket(wss) {
             contexto: 'voo'
           });
         } else if (isAboutHotel) {
-          // Only about hotels
           hotelStream.write({
             usuario: 'cliente',
             mensagem: message.mensagem,
@@ -99,7 +89,6 @@ function setupChatWebSocket(wss) {
             contexto: 'hotel'
           });
         } else {
-          // No specific keyword - send to BOTH services
           flightStream.write({
             usuario: 'cliente',
             mensagem: message.mensagem,
@@ -118,14 +107,12 @@ function setupChatWebSocket(wss) {
       }
     });
 
-    // Handle client disconnect
     ws.on('close', () => {
       console.log('Cliente desconectado do chat');
       flightStream.end();
       hotelStream.end();
     });
 
-    // Handle errors
     ws.on('error', (error) => {
       console.error('WebSocket error:', error);
     });

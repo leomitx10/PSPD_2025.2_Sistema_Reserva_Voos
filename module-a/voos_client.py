@@ -72,7 +72,7 @@ if __name__ == '__main__':
     if response:
         print(f"Voos encontrados: {response.total_encontrados}")
         print(f"Tempo de processamento: {response.tempo_processamento}")
-        for i, voo in enumerate(response.voos[:5]):  # Mostrar apenas os 5 primeiros
+        for i, voo in enumerate(response.voos[:5]): 
             print(f"\n{i+1}. {voo.companhia_aerea} {voo.numero_voo}")
             print(f"   {voo.origem} → {voo.destino}")
             print(f"   {voo.data} {voo.horario_partida} - {voo.horario_chegada}")

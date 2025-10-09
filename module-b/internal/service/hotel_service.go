@@ -23,7 +23,6 @@ func NewHotelServiceServer() *HotelServiceServer {
 }
 
 func (s *HotelServiceServer) SearchHotels(ctx context.Context, req *pb.SearchHotelsRequest) (*pb.SearchHotelsResponse, error) {
-	// Simulate processing delay for performance testing
 	if req.DelaySeconds > 0 {
 		time.Sleep(time.Duration(req.DelaySeconds) * time.Second)
 	}
@@ -37,8 +36,7 @@ func (s *HotelServiceServer) SearchHotels(ctx context.Context, req *pb.SearchHot
 		req.AccommodationType,
 		req.OrderBy,
 	)
-	
-	// Convert to protobuf format
+
 	pbHotels := make([]*pb.Hotel, 0, len(hotels))
 	hasAvailability := false
 	
@@ -65,19 +63,15 @@ func (s *HotelServiceServer) SearchHotels(ctx context.Context, req *pb.SearchHot
 	}, nil
 }
 
-// FinalizarCompra implements Client Streaming RPC
-// Receives multiple cart items and processes them as a single transaction
 func (s *HotelServiceServer) FinalizarCompra(stream pb.HotelService_FinalizarCompraServer) error {
 	var itens []*pb.ItemCarrinho
 	var valorTotal float64
 
 	fmt.Println("[FINALIZAR COMPRA] Recebendo itens do carrinho...")
 
-	// Receive all items from client stream
 	for {
 		item, err := stream.Recv()
 		if err == io.EOF {
-			// Client finished sending items
 			break
 		}
 		if err != nil {
@@ -89,14 +83,12 @@ func (s *HotelServiceServer) FinalizarCompra(stream pb.HotelService_FinalizarCom
 		fmt.Printf("[FINALIZAR COMPRA] Recebido: %s - %s (R$ %.2f)\n", item.Tipo, item.Id, item.Preco)
 	}
 
-	// Process the purchase
-	time.Sleep(1 * time.Second) // Simulate payment processing
+	time.Sleep(1 * time.Second) 
 
 	codigoConfirmacao := fmt.Sprintf("PKG%d%02d%02d", time.Now().Unix()%10000, len(itens), int(valorTotal)%100)
 
 	fmt.Printf("[FINALIZAR COMPRA] Processando %d itens - Total: R$ %.2f\n", len(itens), valorTotal)
 
-	// Send single response
 	resposta := &pb.RespostaCompra{
 		Sucesso:            true,
 		CodigoConfirmacao:  codigoConfirmacao,
@@ -111,8 +103,6 @@ func (s *HotelServiceServer) FinalizarCompra(stream pb.HotelService_FinalizarCom
 	return stream.SendAndClose(resposta)
 }
 
-// ChatSuporte implements Bidirectional Streaming RPC
-// Handles chat support for hotel-related questions
 func (s *HotelServiceServer) ChatSuporte(stream pb.HotelService_ChatSuporteServer) error {
 	fmt.Println("[CHAT SUPORTE HOTÉIS] Chat iniciado")
 
@@ -127,14 +117,12 @@ func (s *HotelServiceServer) ChatSuporte(stream pb.HotelService_ChatSuporteServe
 
 		fmt.Printf("[CHAT HOTÉIS] Recebido: %s\n", mensagem.Mensagem)
 
-		// Detect if message is about hotels, packages or general
 		palavrasHotel := []string{"hotel", "hoteis", "hotéis", "hospedagem", "quarto", "quartos", "pousada", "resort", "hostel"}
 		palavrasPacote := []string{"pacote", "pacotes", "combo"}
 		palavrasVoo := []string{"voo", "voos", "voar", "aereo", "aéreo", "aviao", "avião", "passagem", "passagens"}
 		mensagemLower := strings.ToLower(mensagem.Mensagem)
 		contexto := mensagem.Contexto
 
-		// Check about what
 		isAboutHotel := false
 		isAboutPackage := false
 		isAboutFlight := false
@@ -160,15 +148,13 @@ func (s *HotelServiceServer) ChatSuporte(stream pb.HotelService_ChatSuporteServe
 			}
 		}
 
-		// Respond if about hotels, packages OR general message (no specific keyword and not about flights)
 		isGeneral := contexto == "geral" || (!isAboutHotel && !isAboutPackage && !isAboutFlight && contexto != "voo")
 
 		if isAboutHotel || isAboutPackage || isGeneral {
-			time.Sleep(500 * time.Millisecond) // Simulate processing
+			time.Sleep(500 * time.Millisecond) 
 
 			var resposta string
 
-			// Generate contextual response
 			if isAboutPackage {
 				resposta = "🏨 HOTÉIS - Nossos pacotes incluem hospedagens confortáveis em hotéis, pousadas e resorts! A partir de R$ 80/noite com até 30% de desconto."
 			} else if isGeneral {
@@ -187,7 +173,6 @@ func (s *HotelServiceServer) ChatSuporte(stream pb.HotelService_ChatSuporteServe
 				resposta = "🏨 Olá! Como posso ajudar com informações sobre hotéis? Temos diversas opções de hospedagem!"
 			}
 
-			// Send response
 			err = stream.Send(&pb.ChatMessage{
 				Usuario:   "suporte",
 				Mensagem:  resposta,
@@ -201,7 +186,6 @@ func (s *HotelServiceServer) ChatSuporte(stream pb.HotelService_ChatSuporteServe
 
 			fmt.Printf("[CHAT HOTÉIS] Respondido: %s\n", resposta)
 		} else {
-			// Not about hotels, ignore (let flight module handle it)
 			fmt.Println("[CHAT HOTÉIS] Mensagem não é sobre hotéis, ignorando...")
 		}
 	}

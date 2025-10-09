@@ -2,7 +2,6 @@ const express = require('express');
 const { getHotelClient } = require('../grpc/clients');
 const router = express.Router();
 
-// Search hotels with filters
 router.post('/search', async (req, res) => {
   try {
     const {

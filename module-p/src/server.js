@@ -19,42 +19,35 @@ const wss = new WebSocket.Server({ server, path: '/chat' });
 
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(helmet({
-  contentSecurityPolicy: false, // Disable for development
+  contentSecurityPolicy: false, 
 }));
 app.use(cors());
 app.use(compression());
 app.use(express.json());
 
-// Serve static files (Frontend)
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000, 
+  max: 100 
 });
 app.use(limiter);
 
-// Routes
 app.use('/api/flights', flightRoutes);
 app.use('/api/hotels', hotelRoutes);
 app.use('/api/packages', packageRoutes);
 app.use('/api/cart', cartRoutes);
 
-// Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// Setup WebSocket for chat
 setupChatWebSocket(wss);
 
 server.listen(PORT, () => {

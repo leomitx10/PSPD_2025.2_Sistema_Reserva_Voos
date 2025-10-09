@@ -2,7 +2,6 @@ const express = require('express');
 const { getFlightClient, getHotelClient } = require('../grpc/clients');
 const router = express.Router();
 
-// Search travel packages (flight + hotel)
 router.post('/search', async (req, res) => {
   try {
     const {
@@ -21,7 +20,6 @@ router.post('/search', async (req, res) => {
     const flightClient = getFlightClient();
     const hotelClient = getHotelClient();
 
-    // Search flights and hotels in parallel
     const promises = [
       new Promise((resolve, reject) => {
         flightClient.ConsultarVoos({
@@ -48,12 +46,10 @@ router.post('/search', async (req, res) => {
 
     const [flightResults, hotelResults] = await Promise.all(promises);
 
-    // Combine results into packages
     const packages = [];
     const flights = flightResults.voos || [];
     const hotels = hotelResults.hotels || [];
 
-    // Limit combinations
     const maxFlights = Math.min(flights.length, 5);
     const maxHotels = Math.min(hotels.length, 5);
 
@@ -62,27 +58,21 @@ router.post('/search', async (req, res) => {
         const flight = flights[i];
         const hotel = hotels[j];
 
-        // Calculate check-in and check-out based on flight dates
-        const checkin = data || flight.data; // Use flight departure date as check-in
+        const checkin = data || flight.data; 
         let checkout = data_volta;
 
-        // If no return date, calculate checkout as checkin + 3 days
         if (!checkout && checkin) {
           const checkinDate = new Date(checkin);
           checkinDate.setDate(checkinDate.getDate() + 3);
           checkout = checkinDate.toISOString().split('T')[0];
         }
 
-        // Calculate number of nights
         const nights = checkout && checkin ?
           Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : 1;
 
-        // Calculate total price (flight + hotel per night * nights)
         const totalPrice = flight.preco + (hotel.price * nights);
 
-        // Apply budget filter if specified
         if (!max_budget || totalPrice <= max_budget) {
-          // Add data_volta, check-in, check-out to flight
           const flightWithDates = {
             ...flight,
             data_volta: data_volta || checkout,
@@ -100,7 +90,6 @@ router.post('/search', async (req, res) => {
       }
     }
 
-    // Sort by total price
     packages.sort((a, b) => a.total_price - b.total_price);
 
     res.json({

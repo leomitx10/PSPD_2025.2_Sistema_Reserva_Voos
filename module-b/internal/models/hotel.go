@@ -32,22 +32,18 @@ func (hr *HotelRepository) SearchHotels(city string, minStars, maxStars int32, m
 	var filtered []Hotel
 	
 	for _, hotel := range hr.hotels {
-		// Dynamic pricing simulation
 		currentPrice := hr.calculateDynamicPrice(hotel.BasePrice)
 		hotel.BasePrice = currentPrice
 		
-		// Apply filters
 		if !hr.matchesFilters(hotel, city, minStars, maxStars, minPrice, maxPrice, accommodationType) {
 			continue
 		}
 		
-		// Simulate availability (90% chance of being available)
 		hotel.Available = rand.Float32() < 0.9
 		
 		filtered = append(filtered, hotel)
 	}
 	
-	// Sort results
 	hr.sortHotels(filtered, orderBy)
 	
 	return filtered
@@ -78,14 +74,10 @@ func (hr *HotelRepository) matchesFilters(hotel Hotel, city string, minStars, ma
 		return false
 	}
 
-	// Note: Amenities filtering can be added here if needed in the future
-	// Currently all hotels with matching criteria are returned regardless of specific amenities
-
 	return true
 }
 
 func (hr *HotelRepository) calculateDynamicPrice(basePrice float64) float64 {
-	// Simulate demand-based pricing (±30% variation)
 	variation := (rand.Float64() - 0.5) * 0.6
 	return basePrice * (1 + variation)
 }
@@ -110,14 +102,12 @@ func generateHotels() []Hotel {
 
 	var hotels []Hotel
 
-	// GARANTIR hotéis disponíveis em cada cidade (mínimo 30-50 por cidade para dificultar busca)
 	for _, city := range cities {
-		numHotels := rand.Intn(21) + 30 // 30-50 hotéis por cidade
+		numHotels := rand.Intn(21) + 30 
 		for i := 0; i < numHotels; i++ {
 			accType := accommodationTypes[rand.Intn(len(accommodationTypes))]
 			stars := int32(rand.Intn(5) + 1)
 
-			// Price varies by stars and accommodation type
 			basePrice := float64(int(stars)*80 + rand.Intn(300))
 			if accType == "Resort" {
 				basePrice *= 1.8
@@ -127,7 +117,6 @@ func generateHotels() []Hotel {
 				basePrice *= 0.7
 			}
 
-			// Random amenities
 			selectedAmenities := make([]string, 0)
 			for _, amenity := range amenities {
 				if rand.Float32() < 0.65 {
@@ -141,14 +130,13 @@ func generateHotels() []Hotel {
 				City:              city,
 				Stars:             stars,
 				BasePrice:         basePrice,
-				Available:         true, // Sempre disponível
+				Available:         true, 
 				Amenities:         selectedAmenities,
 				AccommodationType: accType,
 			})
 		}
 	}
 
-	// Gerar hotéis adicionais aleatórios (até 1000 total)
 	for len(hotels) < 1000 {
 		city := cities[rand.Intn(len(cities))]
 		accType := accommodationTypes[rand.Intn(len(accommodationTypes))]
@@ -170,7 +158,6 @@ func generateHotels() []Hotel {
 			}
 		}
 
-		// Alguns hotéis podem estar indisponíveis
 		available := rand.Float32() < 0.85
 
 		hotels = append(hotels, Hotel{

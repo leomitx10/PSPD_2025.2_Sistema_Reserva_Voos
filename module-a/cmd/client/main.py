@@ -67,9 +67,9 @@ def teste_carga():
 if __name__ == '__main__':
     client = VoosClient()
     
-    print("=" * 60)
+    
     print("TESTE 1: Consulta sem filtros (todos os voos)")
-    print("=" * 60)
+    
     response = client.consultar_voos()
     
     if response:
@@ -81,9 +81,9 @@ if __name__ == '__main__':
             print(f"   {voo.data} {voo.horario_partida} - {voo.horario_chegada}")
             print(f"   R$ {voo.preco:.2f} | {voo.assentos_disponiveis} assentos")
     
-    print("\n" + "=" * 60)
+    
     print("TESTE 2: Consulta apenas por origem (São Paulo)")
-    print("=" * 60)
+    
     response = client.consultar_voos(origem="São Paulo")
     
     if response:
@@ -95,9 +95,9 @@ if __name__ == '__main__':
             print(f"   {voo.data} {voo.horario_partida} - {voo.horario_chegada}")
             print(f"   R$ {voo.preco:.2f} | {voo.assentos_disponiveis} assentos")
     
-    print("\n" + "=" * 60)
+    
     print("TESTE 3: Consulta por hoje")
-    print("=" * 60)
+    
     hoje = datetime.now().strftime("%Y-%m-%d")
     response = client.consultar_voos(data=hoje)
     
@@ -110,9 +110,9 @@ if __name__ == '__main__':
             print(f"   {voo.data} {voo.horario_partida} - {voo.horario_chegada}")
             print(f"   R$ {voo.preco:.2f} | {voo.assentos_disponiveis} assentos")
     
-    print("\n" + "=" * 60)
+    
     print("TESTE 4: Consulta por preço máximo (R$ 300)")
-    print("=" * 60)
+    
     response = client.consultar_voos(preco_max=300)
     
     if response:

@@ -37,7 +37,6 @@ func searchHotelsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Simulate processing delay
 	if req.DelaySeconds > 0 {
 		time.Sleep(time.Duration(req.DelaySeconds) * time.Second)
 	}
@@ -84,13 +83,10 @@ func main() {
 	r.HandleFunc("/hotels/search", searchHotelsHandler).Methods("POST")
 	r.HandleFunc("/health", healthHandler).Methods("GET")
 
-	// CORS
 	handler := cors.Default().Handler(r)
 
-	log.Println("=" + "=" * 58)
 	log.Println("Servidor REST de Hotéis rodando na porta 5002")
 	log.Println("Para comparação de performance com gRPC")
-	log.Println("=" + "=" * 58)
 
 	if err := http.ListenAndServe(":5002", handler); err != nil {
 		log.Fatal(err)

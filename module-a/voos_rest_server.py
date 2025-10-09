@@ -12,7 +12,6 @@ class VoosDatabase:
         self.voos = self._gerar_base_voos()
 
     def _gerar_base_voos(self):
-        """Gera uma base de dados simulada de voos (mesma do gRPC)"""
         companhias = ["LATAM", "GOL", "Azul", "TAM", "Avianca"]
         cidades = ["São Paulo", "Rio de Janeiro", "Brasília", "Belo Horizonte",
                   "Salvador", "Recife", "Fortaleza", "Manaus", "Porto Alegre"]
@@ -52,7 +51,6 @@ class VoosDatabase:
         return voos
 
     def buscar_voos(self, filtros):
-        """Aplica filtros aos voos"""
         inicio = time.time()
         time.sleep(random.uniform(1, 3))  # Simula processamento
 
@@ -114,7 +112,6 @@ db = VoosDatabase()
 
 @app.route('/voos/search', methods=['POST'])
 def buscar_voos():
-    """Endpoint REST para buscar voos"""
     filtros = request.json or {}
     resultado = db.buscar_voos(filtros)
     return jsonify(resultado)
@@ -124,8 +121,6 @@ def health():
     return jsonify({"status": "OK", "service": "Voos REST"})
 
 if __name__ == '__main__':
-    print("=" * 60)
     print("Servidor REST de Voos rodando na porta 5001")
     print("Para comparação de performance com gRPC")
-    print("=" * 60)
     app.run(host='0.0.0.0', port=5001, debug=False)

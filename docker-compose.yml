@@ -1,5 +1,4 @@
 services:
-  # Serviço de Voos (Python) - Module A
   voos-service:
     build:
       context: ./module-a
@@ -16,7 +15,6 @@ services:
       timeout: 10s
       retries: 3
 
-  # Serviço de Hotéis (Go) - Module B
   hoteis-service:
     build:
       context: ./module-b
@@ -28,7 +26,6 @@ services:
       - grpc-network
     restart: unless-stopped
 
-  # API Gateway (Node.js)
   api-gateway:
     build:
       context: ./module-p

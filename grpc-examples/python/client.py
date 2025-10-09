@@ -4,11 +4,7 @@ import examples_pb2
 import examples_pb2_grpc
 
 def test_unary_call(stub):
-    """Teste do Unary RPC - Simples requisição/resposta"""
-    print("\n" + "=" * 60)
-    print("1. UNARY CALL - Requisição/Resposta Simples")
-    print("=" * 60)
-    print("Caso de uso: Autenticação, consultas simples, validações\n")
+    print("\n1. UNARY CALL - Requisição/Resposta Simples")
 
     request = examples_pb2.UnaryRequest(message="Olá, servidor!")
     response = stub.UnaryCall(request)
@@ -18,11 +14,7 @@ def test_unary_call(stub):
     print(f"Timestamp: {response.timestamp}")
 
 def test_server_streaming(stub):
-    """Teste do Server Streaming RPC - Servidor envia múltiplas respostas"""
-    print("\n" + "=" * 60)
-    print("2. SERVER STREAMING - Servidor envia stream")
-    print("=" * 60)
-    print("Caso de uso: Download de arquivos, logs em tempo real, notificações\n")
+    print("\n2. SERVER STREAMING - Servidor envia stream")
 
     request = examples_pb2.ServerStreamingRequest(count=5, prefix="LOG")
     responses = stub.ServerStreamingCall(request)
@@ -32,11 +24,7 @@ def test_server_streaming(stub):
         print(f"  [{response.sequence}] {response.message}")
 
 def test_client_streaming(stub):
-    """Teste do Client Streaming RPC - Cliente envia múltiplas requisições"""
-    print("\n" + "=" * 60)
-    print("3. CLIENT STREAMING - Cliente envia stream")
-    print("=" * 60)
-    print("Caso de uso: Upload de arquivos, envio de métricas, dados em lote\n")
+    print("\n3. CLIENT STREAMING - Cliente envia stream")
 
     def generate_requests():
         data_items = ["Dados-1", "Dados-2", "Dados-3", "Dados-4", "Dados-5"]
@@ -51,11 +39,7 @@ def test_client_streaming(stub):
     print(f"  Resumo: {response.summary}")
 
 def test_bidirectional_streaming(stub):
-    """Teste do Bidirectional Streaming RPC - Ambos enviam streams"""
-    print("\n" + "=" * 60)
-    print("4. BIDIRECTIONAL STREAMING - Comunicação bidirecional")
-    print("=" * 60)
-    print("Caso de uso: Chat em tempo real, jogos multiplayer, sincronização\n")
+    print("\n4. BIDIRECTIONAL STREAMING - Comunicação bidirecional")
 
     def generate_requests():
         messages = ["Olá", "Como vai?", "Tudo bem!", "Até logo"]
@@ -70,9 +54,7 @@ def test_bidirectional_streaming(stub):
         print(f"  Recebido: {response.echo} (em {response.processed_at})")
 
 def run():
-    print("\n" + "=" * 60)
-    print("DEMONSTRAÇÃO DOS 4 TIPOS DE COMUNICAÇÃO gRPC")
-    print("=" * 60)
+    print("\nDEMONSTRAÇÃO DOS 4 TIPOS DE COMUNICAÇÃO gRPC")
 
     with grpc.insecure_channel('localhost:50053') as channel:
         stub = examples_pb2_grpc.GrpcExamplesServiceStub(channel)
@@ -85,7 +67,7 @@ def run():
 
         except grpc.RpcError as e:
             print(f"\nErro ao conectar ao servidor: {e.details()}")
-            print("Certifique-se de que o servidor está rodando na porta 50053")
+            print("Certifique-se de que o servidor está rodando na porta 50053\n")
 
 if __name__ == '__main__':
     run()

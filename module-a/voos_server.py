@@ -11,7 +11,6 @@ class VoosServiceImpl(voos_service_pb2_grpc.VoosServiceServicer):
         self.voos_database = self._gerar_base_voos()
     
     def _gerar_base_voos(self):
-        """Gera uma base de dados simulada de voos"""
         companhias = ["LATAM", "GOL", "Azul", "TAM", "Avianca"]
         cidades = ["São Paulo", "Rio de Janeiro", "Brasília", "Belo Horizonte",
                   "Salvador", "Recife", "Fortaleza", "Manaus", "Porto Alegre"]
@@ -20,7 +19,6 @@ class VoosServiceImpl(voos_service_pb2_grpc.VoosServiceServicer):
 
         voos = []
 
-        # GARANTIR voos nos próximos 10 dias (ao menos 3-5 por dia)
         for dia in range(10):
             for _ in range(random.randint(3, 5)):
                 origem = random.choice(cidades)
@@ -37,7 +35,7 @@ class VoosServiceImpl(voos_service_pb2_grpc.VoosServiceServicer):
                 horario_chegada = horario_partida + timedelta(minutes=duracao)
 
                 classe = random.choice(classes)
-                # Preço varia por classe
+
                 preco_base = random.uniform(150.0, 800.0)
                 multiplicador = {"Econômica": 1.0, "Executiva": 2.5, "Primeira Classe": 4.0}
                 preco = round(preco_base * multiplicador[classe], 2)
@@ -52,15 +50,14 @@ class VoosServiceImpl(voos_service_pb2_grpc.VoosServiceServicer):
                     preco=preco,
                     companhia_aerea=random.choice(companhias),
                     numero_voo=f"{random.choice(['LA', 'G3', 'AD', 'JJ'])}{random.randint(1000, 9999)}",
-                    assentos_disponiveis=random.randint(5, 180),  # Sempre com assentos
-                    status="ativo",  # Garantir ativo nos próximos 10 dias
+                    assentos_disponiveis=random.randint(5, 180), 
+                    status="ativo", 
                     classe_economica=classe,
                     aeronave=random.choice(aeronaves),
                     duracao_minutos=duracao
                 )
                 voos.append(voo)
 
-        # Gerar voos restantes (até 1000 total) para período futuro
         while len(voos) < 1000:
             origem = random.choice(cidades)
             destino = random.choice([c for c in cidades if c != origem])
@@ -108,10 +105,6 @@ class VoosServiceImpl(voos_service_pb2_grpc.VoosServiceServicer):
         voos_filtrados = self._aplicar_filtros(request)
         
         voos_ordenados = self._ordenar_voos(voos_filtrados, request.ordenacao)
-        
-        # Comentado: simulação de falha aleatória
-        # if random.random() < 0.1:  
-        #     voos_ordenados = []
         
         tempo_processamento = time.time() - inicio_processamento
         
@@ -168,14 +161,9 @@ class VoosServiceImpl(voos_service_pb2_grpc.VoosServiceServicer):
             return sorted(voos, key=lambda v: v.preco)
 
     def MonitorarVoo(self, request, context):
-        """
-        Server Streaming RPC - Monitora status de um voo em tempo real
-        Envia atualizações contínuas do status do voo
-        """
         numero_voo = request.numero_voo
         print(f"[MONITORAR VOO] Iniciando monitoramento do voo {numero_voo}")
 
-        # Simula diferentes status do voo
         status_timeline = [
             {"status": "aguardando_embarque", "mensagem": f"Voo {numero_voo} aguardando no portão de embarque", "progresso": 10},
             {"status": "embarcando", "mensagem": f"Embarque do voo {numero_voo} iniciado", "progresso": 30},
@@ -187,7 +175,7 @@ class VoosServiceImpl(voos_service_pb2_grpc.VoosServiceServicer):
         ]
 
         for update in status_timeline:
-            time.sleep(2)  # Simula intervalo entre atualizações
+            time.sleep(2)  
 
             yield voos_service_pb2.StatusVooUpdate(
                 numero_voo=numero_voo,
@@ -200,25 +188,18 @@ class VoosServiceImpl(voos_service_pb2_grpc.VoosServiceServicer):
             print(f"[MONITORAR VOO] {update['mensagem']} ({update['progresso']}%)")
 
     def ChatSuporte(self, request_iterator, context):
-        """
-        Bidirectional Streaming RPC - Chat de suporte em tempo real
-        Responde apenas mensagens relacionadas a voos
-        """
         print("[CHAT SUPORTE VOOS] Chat iniciado")
 
         for mensagem_cliente in request_iterator:
             print(f"[CHAT VOOS] Recebido: {mensagem_cliente.mensagem}")
 
-            # Detecta se a mensagem é sobre voos ou pacotes
             palavras_voo = ["voo", "voos", "voar", "aereo", "aéreo", "aviao", "avião", "passagem", "passagens"]
             palavras_pacote = ["pacote", "pacotes", "combo"]
             mensagem_lower = mensagem_cliente.mensagem.lower()
 
-            # Responde se for sobre voos OU pacotes
             if any(palavra in mensagem_lower for palavra in palavras_voo) or any(palavra in mensagem_lower for palavra in palavras_pacote):
-                time.sleep(0.5)  # Simula tempo de processamento
+                time.sleep(0.5)  
 
-                # Gera resposta contextual
                 if any(palavra in mensagem_lower for palavra in palavras_pacote):
                     resposta = "✈️ VOOS - Nossos pacotes incluem passagens aéreas com LATAM, GOL, Azul e mais! Voos a partir de R$ 150."
                 elif "preco" in mensagem_lower or "preço" in mensagem_lower or "barato" in mensagem_lower:
@@ -243,20 +224,18 @@ class VoosServiceImpl(voos_service_pb2_grpc.VoosServiceServicer):
 
                 print(f"[CHAT VOOS] Respondido: {resposta}")
             else:
-                # Não responde se não for sobre voos (deixa para o módulo de hotéis responder)
                 print(f"[CHAT VOOS] Mensagem não é sobre voos, ignorando...")
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     voos_service_pb2_grpc.add_VoosServiceServicer_to_server(VoosServiceImpl(), server)
 
-    # Usar 0.0.0.0 para aceitar conexões de qualquer interface (necessário no Docker)
     server.add_insecure_port('0.0.0.0:50051')
     server.start()
-    print("=" * 60)
+
     print("Servidor gRPC de Voos rodando na porta 50051")
     print("Pressione Ctrl+C para parar")
-    print("=" * 60)
+
     server.wait_for_termination()
 
 if __name__ == '__main__':

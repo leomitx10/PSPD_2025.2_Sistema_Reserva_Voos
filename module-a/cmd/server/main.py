@@ -246,9 +246,9 @@ def serve():
 
     server.add_insecure_port('0.0.0.0:50051')
     server.start()
-    print("=" * 60)
+
     print("Servidor gRPC de Voos rodando na porta 50051")
-    print("=" * 60)
+
     server.wait_for_termination()
 
 if __name__ == '__main__':

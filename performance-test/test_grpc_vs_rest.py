@@ -19,10 +19,9 @@ import os
 import threading
 import json
 
-# Adicionar path dos protos
 sys.path.append('../module-a/proto')
 sys.path.append('../module-b/proto')
-sys.path.append('.')  # Para os protos locais
+sys.path.append('.')  
 
 try:
     import voos_service_pb2
@@ -57,7 +56,7 @@ def test_grpc_voos_simples(n_requests=10):
             try:
                 response = stub.ConsultarVoos(request)
                 elapsed = time.time() - start
-                times.append(elapsed * 1000)  # Converter para ms
+                times.append(elapsed * 1000)  
             except grpc.RpcError as e:
                 print(f"Erro gRPC: {e.details()}")
                 continue
@@ -65,7 +64,6 @@ def test_grpc_voos_simples(n_requests=10):
     return times
 
 def test_rest_voos_simples(n_requests=10):
-    """Cenário 1: Requisição simples - REST"""
     times = []
     url = "http://localhost:3000/api/flights/search"
 
@@ -88,7 +86,6 @@ def test_rest_voos_simples(n_requests=10):
     return times
 
 def test_grpc_voos_complexo(n_requests=10):
-    """Cenário 2: Requisição complexa - gRPC"""
     times = []
 
     with grpc.insecure_channel('localhost:50051') as channel:
@@ -117,7 +114,6 @@ def test_grpc_voos_complexo(n_requests=10):
     return times
 
 def test_rest_voos_complexo(n_requests=10):
-    """Cenário 2: Requisição complexa - REST"""
     times = []
     url = "http://localhost:3000/api/flights/search"
 
@@ -145,7 +141,6 @@ def test_rest_voos_complexo(n_requests=10):
     return times
 
 def test_grpc_server_streaming(n_requests=5):
-    """Cenário 3: Server Streaming RPC - Monitoramento de Voo"""
     times = []
 
     with grpc.insecure_channel('localhost:50051') as channel:
@@ -162,7 +157,6 @@ def test_grpc_server_streaming(n_requests=5):
             try:
                 for update in stub.MonitorarVoo(request):
                     updates_received += 1
-                    # Conta apenas após receber todas as atualizações
                     if update.progresso_percentual >= 100:
                         elapsed = time.time() - start
                         times.append(elapsed * 1000)
@@ -174,7 +168,6 @@ def test_grpc_server_streaming(n_requests=5):
     return times
 
 def test_rest_server_streaming(n_requests=5):
-    """Cenário 3: Server Streaming via SSE - REST"""
     times = []
     url = "http://localhost:3000/api/flights/monitor"
 
@@ -183,7 +176,6 @@ def test_rest_server_streaming(n_requests=5):
 
         start = time.time()
         try:
-            # SSE mantém conexão aberta
             response = requests.get(f"{url}/{numero_voo}", stream=True, timeout=30)
 
             if response.status_code == 200:
@@ -203,7 +195,6 @@ def test_rest_server_streaming(n_requests=5):
     return times
 
 def test_grpc_client_streaming(n_requests=5):
-    """Cenário 4: Client Streaming RPC - Finalizar Compra"""
     if not hotel_pb2:
         return []
 
@@ -216,7 +207,6 @@ def test_grpc_client_streaming(n_requests=5):
             start = time.time()
 
             try:
-                # Simulando itens do carrinho
                 def item_generator():
                     items = [
                         {"tipo": "voo", "id": "LA3000", "detalhes": "SP-RJ", "preco": 450.0},
@@ -244,7 +234,6 @@ def test_grpc_client_streaming(n_requests=5):
     return times
 
 def test_rest_client_streaming(n_requests=5):
-    """Cenário 4: Client Streaming via POST - REST"""
     times = []
     url = "http://localhost:3000/api/cart/checkout"
 
@@ -273,7 +262,6 @@ def test_rest_client_streaming(n_requests=5):
     return times
 
 def test_grpc_bidirectional(n_requests=3):
-    """Cenário 5: Bidirectional Streaming RPC - Chat de Suporte"""
     if not voos_service_pb2 or not voos_service_pb2_grpc:
         return []
 
@@ -301,16 +289,13 @@ def test_grpc_bidirectional(n_requests=3):
                             timestamp=str(int(time.time())),
                             contexto="voo"
                         )
-                        time.sleep(0.05)  # Simula digitação
+                        time.sleep(0.05)  
 
-                # Itera sobre as respostas do servidor
                 for resposta in stub.ChatSuporte(message_generator()):
                     messages_received += 1
-                    # Termina após receber 3 respostas
                     if messages_received >= 3:
                         break
 
-                # Registra tempo se recebeu ao menos uma resposta
                 if messages_received > 0:
                     elapsed = time.time() - start
                     times.append(elapsed * 1000)
@@ -325,7 +310,6 @@ def test_grpc_bidirectional(n_requests=3):
     return times
 
 def test_rest_bidirectional(n_requests=3):
-    """Cenário 5: Bidirectional via WebSocket - REST"""
     try:
         from websocket import create_connection
     except ImportError:
@@ -357,7 +341,6 @@ def test_rest_bidirectional(n_requests=3):
                 messages_sent += 1
                 time.sleep(0.1)
 
-                # Recebe resposta
                 result = ws.recv()
                 if result:
                     messages_received += 1
@@ -373,15 +356,12 @@ def test_rest_bidirectional(n_requests=3):
     return times
 
 def test_grpc_alto_volume(n_requests=100):
-    """Cenário 6: Alto volume - gRPC Unary"""
     return test_grpc_voos_simples(n_requests)
 
 def test_rest_alto_volume(n_requests=100):
-    """Cenário 6: Alto volume - REST"""
     return test_rest_voos_simples(n_requests)
 
 def calcular_estatisticas(times):
-    """Calcula estatísticas dos tempos de resposta"""
     if not times:
         return {
             'min': 0,
@@ -400,13 +380,12 @@ def calcular_estatisticas(times):
     }
 
 def exibir_resultados(nome_cenario, stats_grpc, stats_rest):
-    """Exibe comparação entre gRPC e REST"""
-    print(f"\n{'=' * 80}")
+    
     print(f"CENÁRIO: {nome_cenario}")
-    print('=' * 80)
+    
 
     print(f"\n{'Métrica':<20} {'gRPC (ms)':<15} {'REST (ms)':<15} {'Diferença (%)':<15}")
-    print('-' * 80)
+    
 
     metricas = ['min', 'max', 'media', 'mediana', 'desvio_padrao']
     labels = ['Mínimo', 'Máximo', 'Média', 'Mediana', 'Desvio Padrão']
@@ -427,19 +406,18 @@ def exibir_resultados(nome_cenario, stats_grpc, stats_rest):
         print(f"\nSpeedup do gRPC: {speedup:.2f}x mais rápido")
 
 def main():
-    print("\n" + "=" * 80)
+    
     print("COMPARATIVO DE PERFORMANCE: gRPC vs REST")
     print("Demonstração dos 4 Tipos de Comunicação gRPC")
-    print("=" * 80)
+
     print("\nCertifique-se de que os seguintes serviços estão rodando:")
     print("  - Servidor gRPC de Voos (porta 50051)")
     print("  - Servidor gRPC de Hotéis (porta 50052)")
     print("  - API Gateway REST (porta 3000)")
-    print("\n" + "=" * 80)
+    
 
     input("\nPressione ENTER para iniciar os testes...")
 
-    # Cenário 1: Unary RPC - Requisição Simples
     print("\n\nCenário 1: UNARY RPC - Requisição Simples (10 requisições)...")
     print("   Tipo: Request → Response (1:1)")
     grpc_times_1 = test_grpc_voos_simples(10)
@@ -450,7 +428,6 @@ def main():
         calcular_estatisticas(rest_times_1)
     )
 
-    # Cenário 2: Unary RPC - Requisição Complexa
     print("\n\nCenário 2: UNARY RPC - Requisição Complexa (10 requisições)...")
     print("   Tipo: Request → Response com múltiplos filtros")
     grpc_times_2 = test_grpc_voos_complexo(10)
@@ -461,7 +438,6 @@ def main():
         calcular_estatisticas(rest_times_2)
     )
 
-    # Cenário 3: Server Streaming RPC
     print("\n\nCenário 3: SERVER STREAMING RPC - Monitoramento de Voo (5 requisições)...")
     print("   Tipo: 1 Request → N Responses (stream de updates)")
     grpc_times_3 = test_grpc_server_streaming(5)
@@ -472,7 +448,6 @@ def main():
         calcular_estatisticas(rest_times_3)
     )
 
-    # Cenário 4: Client Streaming RPC
     print("\n\nCenário 4: CLIENT STREAMING RPC - Finalizar Compra (5 requisições)...")
     print("   Tipo: N Requests → 1 Response (envio de múltiplos itens)")
     grpc_times_4 = test_grpc_client_streaming(5)
@@ -486,7 +461,6 @@ def main():
     else:
         print("Teste ignorado - serviço de hotel indisponível")
 
-    # Cenário 5: Bidirectional Streaming RPC
     print("\n\nCenário 5: BIDIRECTIONAL STREAMING RPC - Chat de Suporte (3 requisições)...")
     print("   Tipo: N Requests ↔ N Responses (conversação em tempo real)")
     grpc_times_5 = test_grpc_bidirectional(3)
@@ -500,7 +474,6 @@ def main():
     else:
         print("Teste ignorado - serviço de chat indisponível")
 
-    # Cenário 6: Alto Volume (Unary)
     print("\n\nCenário 6: ALTO VOLUME - Unary RPC (100 requisições)...")
     print("   Tipo: Teste de stress com requisições Unary")
     grpc_times_6 = test_grpc_alto_volume(100)

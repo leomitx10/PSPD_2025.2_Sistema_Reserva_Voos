@@ -1,6 +1,5 @@
 const API_BASE = '/api';
 
-// ============ CARRINHO GLOBAL ============
 let cart = [];
 
 function addToCart(item) {
@@ -59,7 +58,6 @@ function updateCartUI() {
     cartTotal.textContent = `R$ ${total.toFixed(2)}`;
 }
 
-// ============ MODAIS ============
 function openModal(modalId) {
     document.getElementById(modalId).classList.add('active');
 }
@@ -67,7 +65,6 @@ function openModal(modalId) {
 function closeModal(modalId) {
     document.getElementById(modalId).classList.remove('active');
     
-    // Clean up monitoring resources when closing monitor modal
     if (modalId === 'monitor-modal') {
         if (monitorEventSource) {
             monitorEventSource.close();
@@ -81,13 +78,11 @@ function closeModal(modalId) {
     }
 }
 
-// Close modal when clicking outside
 document.addEventListener('click', (e) => {
     if (e.target.classList.contains('modal')) {
         const modalId = e.target.id;
         e.target.classList.remove('active');
-        
-        // Clean up monitoring resources when closing monitor modal
+
         if (modalId === 'monitor-modal') {
             if (typeof monitorEventSource !== 'undefined' && monitorEventSource) {
                 monitorEventSource.close();
@@ -104,7 +99,6 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// ============ NOTIFICAÇÕES ============
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
@@ -118,7 +112,6 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-// ============ GERENCIAMENTO DE TABS ============
 function showTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
@@ -131,9 +124,6 @@ function showTab(tabName) {
     event.target.classList.add('active');
 }
 
-// ============ VOOS ============
-
-// Controle de tipo de viagem
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('input[name="trip_type"]').forEach(radio => {
         radio.addEventListener('change', (e) => {
@@ -148,7 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Controle de datas flexíveis (Voos)
     document.getElementById('flexible-dates-toggle').addEventListener('change', (e) => {
         const departureDate = document.getElementById('flight-departure-date');
         const returnDate = document.getElementById('flight-return-date');
@@ -167,7 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Controle de datas flexíveis (Hotéis)
     document.getElementById('flexible-stay-toggle').addEventListener('change', (e) => {
         const checkin = document.getElementById('hotel-checkin');
         const checkout = document.getElementById('hotel-checkout');
@@ -185,7 +173,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Controle de datas flexíveis (Pacotes)
     document.getElementById('flexible-package-toggle').addEventListener('change', (e) => {
         const startDate = document.getElementById('package-start-date');
         const endDate = document.getElementById('package-end-date');
@@ -204,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Buscar Voos
 document.getElementById('flight-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -216,13 +202,12 @@ document.getElementById('flight-form').addEventListener('submit', async (e) => {
         const dataVolta = document.getElementById('flight-return-date').value || '';
         const tipoViagem = document.querySelector('input[name="trip_type"]:checked').value;
 
-        // Validar que data de volta é posterior à data de ida
         if (tipoViagem === 'roundtrip' && dataVolta) {
             const ida = new Date(dataIda);
             const volta = new Date(dataVolta);
 
             if (volta <= ida) {
-                showNotification('❌ A data de volta deve ser posterior à data de ida!', 'error');
+                showNotification('A data de volta deve ser posterior à data de ida!', 'error');
                 loading.style.display = 'none';
                 return;
             }
@@ -263,10 +248,9 @@ function displayFlights(data, dataVolta) {
     const resultsDiv = document.getElementById('flight-results');
     const flights = data.voos || [];
 
-    // GARANTIR que data_volta esteja em TODOS os voos
     if (dataVolta && flights.length > 0) {
         flights.forEach(flight => {
-            flight.data_volta = dataVolta; // Força adicionar a todos
+            flight.data_volta = dataVolta; 
         });
     }
 
@@ -396,7 +380,6 @@ function reservarVoo(flight) {
     openConfirmModal(item);
 }
 
-// ============ HOTÉIS ============
 document.getElementById('hotel-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -407,7 +390,6 @@ document.getElementById('hotel-form').addEventListener('submit', async (e) => {
         const checkin = document.getElementById('hotel-checkin').value;
         const checkout = document.getElementById('hotel-checkout').value;
 
-        // Validar que check-out é posterior ao check-in
         if (checkin && checkout) {
             const dataCheckin = new Date(checkin);
             const dataCheckout = new Date(checkout);
@@ -452,7 +434,6 @@ function displayHotels(data, checkIn, checkOut) {
     const resultsDiv = document.getElementById('hotel-results');
     const hotels = data.hotels || [];
 
-    // GARANTIR que check-in e check-out estejam em TODOS os hotéis
     if (checkIn && checkOut && hotels.length > 0) {
         hotels.forEach(hotel => {
             hotel.checkin = checkIn;
@@ -561,7 +542,6 @@ function reservarHotel(hotel) {
     openConfirmModal(item);
 }
 
-// ============ PACOTES ============
 document.getElementById('package-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -572,7 +552,6 @@ document.getElementById('package-form').addEventListener('submit', async (e) => 
         const checkinDate = document.getElementById('package-start-date').value;
         const checkoutDate = document.getElementById('package-end-date').value;
 
-        // Validar que data final é posterior à data inicial
         if (checkinDate && checkoutDate) {
             const dataInicio = new Date(checkinDate);
             const dataFim = new Date(checkoutDate);
@@ -755,7 +734,6 @@ function reservarPacote(pkg, noites, precoFinal) {
     openConfirmModal(item);
 }
 
-// ============ MODAL DE CONFIRMAÇÃO ============
 function openConfirmModal(item) {
     document.getElementById('confirm-item-type').textContent = item.tipo.toUpperCase();
     document.getElementById('confirm-item-title').textContent = item.titulo;
@@ -770,7 +748,6 @@ function openConfirmModal(item) {
     openModal('confirm-modal');
 }
 
-// ============ FINALIZAR COMPRA (Client Streaming) ============
 async function finalizarCompra() {
     if (cart.length === 0) {
         showNotification('Carrinho vazio!', 'warning');
@@ -790,7 +767,6 @@ async function finalizarCompra() {
         const result = await response.json();
 
         if (result.sucesso) {
-            // Build confirmation message with codes per type
             let codigosText = '';
             if (result.codigos && result.codigos.length > 0) {
                 result.codigos.forEach(item => {
@@ -804,7 +780,6 @@ async function finalizarCompra() {
             updateCartUI();
             closeModal('cart-modal');
 
-            // Show confirmation details with separate codes
             alert(`Compra Confirmada!\n\nCódigos de Confirmação:${codigosText}\n\nTotal: R$ ${result.valor_total.toFixed(2)}\nItens: ${result.total_itens}\n\nConfirmação enviada por email!`);
         } else {
             showNotification('Erro ao processar compra', 'error');
@@ -817,13 +792,11 @@ async function finalizarCompra() {
     }
 }
 
-// ============ MONITORAR VOO (Server Streaming) ============
 let monitorEventSource = null;
 let monitorUpdatesQueue = [];
 let monitorDisplayInterval = null;
 
 function openMonitorModal() {
-    // Reset modal state
     document.getElementById('monitor-input-section').style.display = 'block';
     document.getElementById('monitor-tracking-section').style.display = 'none';
     document.getElementById('monitor-flight-code').value = '';
@@ -831,7 +804,6 @@ function openMonitorModal() {
     document.getElementById('monitor-progress').style.width = '0%';
     document.getElementById('new-monitoring-btn').style.display = 'none';
     
-    // Clear any existing intervals and queues
     if (monitorDisplayInterval) {
         clearInterval(monitorDisplayInterval);
         monitorDisplayInterval = null;
@@ -849,7 +821,6 @@ function startMonitoringFromInput() {
         return;
     }
 
-    // Hide input, show tracking section
     document.getElementById('monitor-input-section').style.display = 'none';
     document.getElementById('monitor-tracking-section').style.display = 'block';
     document.getElementById('monitor-flight-number').textContent = numeroVoo;
@@ -858,12 +829,10 @@ function startMonitoringFromInput() {
 }
 
 function startMonitoring(numeroVoo) {
-    // Close previous connection if exists
     if (monitorEventSource) {
         monitorEventSource.close();
     }
     
-    // Clear any existing intervals and queues
     if (monitorDisplayInterval) {
         clearInterval(monitorDisplayInterval);
         monitorDisplayInterval = null;
@@ -872,30 +841,25 @@ function startMonitoring(numeroVoo) {
 
     const updatesDiv = document.getElementById('monitor-updates');
     const progressBar = document.getElementById('monitor-progress');
-    let isCompleted = false; // Flag to track if monitoring completed successfully
+    let isCompleted = false; 
 
-    // Use EventSource for Server-Sent Events (alternative to gRPC streaming in browser)
     monitorEventSource = new EventSource(`${API_BASE}/flights/monitor/${numeroVoo}`);
 
     monitorEventSource.onmessage = (event) => {
         const update = JSON.parse(event.data);
         
-        // Check if this is the final update
         if (update.status === 'finalizado') {
             isCompleted = true;
         }
         
-        // Add update to queue instead of showing immediately
         monitorUpdatesQueue.push(update);
         
-        // Start displaying updates if not already started
         if (!monitorDisplayInterval) {
             startDisplayingUpdates(updatesDiv, progressBar);
         }
     };
 
     monitorEventSource.onerror = (error) => {
-        // Only show error if the monitoring didn't complete successfully
         if (!isCompleted) {
             console.error('EventSource error:', error);
             showNotification('Erro no monitoramento', 'error');
@@ -910,10 +874,8 @@ function startDisplayingUpdates(updatesDiv, progressBar) {
             return;
         }
         
-        // Get the oldest update from queue (FIFO)
         const update = monitorUpdatesQueue.shift();
         
-        // Add update to list with animation
         const updateElement = document.createElement('div');
         updateElement.className = 'monitor-update';
         updateElement.style.opacity = '0';
@@ -924,55 +886,43 @@ function startDisplayingUpdates(updatesDiv, progressBar) {
             <div class="update-message">${update.mensagem}</div>
         `;
         
-        // Insert at the top
         updatesDiv.insertBefore(updateElement, updatesDiv.firstChild);
         
-        // Animate in
         setTimeout(() => {
             updateElement.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
             updateElement.style.opacity = '1';
             updateElement.style.transform = 'translateY(0)';
         }, 50);
 
-        // Update progress bar with animation
         progressBar.style.transition = 'width 0.8s ease';
         progressBar.style.width = `${update.progresso_percentual}%`;
 
-        // Close connection when finished
         if (update.status === 'finalizado') {
-            // Stop the interval after showing all updates
             if (monitorUpdatesQueue.length === 0) {
                 clearInterval(monitorDisplayInterval);
                 monitorDisplayInterval = null;
             }
             
-            // Don't close EventSource here, let it close naturally to avoid error event
-            
             setTimeout(() => {
                 showNotification('Monitoramento concluído!', 'success');
-                // Mostrar botão de novo monitoramento
                 document.getElementById('new-monitoring-btn').style.display = 'block';
             }, 1000);
         }
-    }, 2000); // Mostrar uma atualização a cada 2 segundos
+    }, 2000); 
 }
 
-// Função para resetar o monitoramento e permitir um novo
 function resetMonitoring() {
-    // Fechar conexão se estiver ativa
     if (monitorEventSource) {
         monitorEventSource.close();
         monitorEventSource = null;
     }
     
-    // Clear intervals and queues
     if (monitorDisplayInterval) {
         clearInterval(monitorDisplayInterval);
         monitorDisplayInterval = null;
     }
     monitorUpdatesQueue = [];
     
-    // Resetar estado da modal
     document.getElementById('monitor-input-section').style.display = 'block';
     document.getElementById('monitor-tracking-section').style.display = 'none';
     document.getElementById('monitor-flight-code').value = '';
@@ -983,7 +933,6 @@ function resetMonitoring() {
     showNotification('Pronto para novo monitoramento!', 'info');
 }
 
-// ============ CHAT SUPORTE (Bidirectional Streaming) ============
 let chatWebSocket = null;
 
 function openChatModal() {
@@ -996,12 +945,10 @@ function openChatModal() {
 function connectChat() {
     const messagesDiv = document.getElementById('chat-messages');
 
-    // Build WebSocket URL dynamically based on current location
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const host = window.location.host;
     const wsUrl = `${protocol}//${host}/chat`;
     
-    // Use WebSocket for bidirectional communication (alternative to gRPC bidirectional streaming)
     chatWebSocket = new WebSocket(wsUrl);
 
     chatWebSocket.onopen = () => {
@@ -1024,10 +971,8 @@ function sendChatMessage() {
 
     if (!message) return;
 
-    // Add user message to UI
     addChatMessage('cliente', message);
 
-    // Send to server
     if (chatWebSocket && chatWebSocket.readyState === WebSocket.OPEN) {
         chatWebSocket.send(JSON.stringify({
             usuario: 'cliente',
@@ -1051,7 +996,6 @@ function addChatMessage(usuario, mensagem) {
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-// Allow Enter key to send message
 document.addEventListener('DOMContentLoaded', () => {
     const chatInput = document.getElementById('chat-input');
     if (chatInput) {
@@ -1063,7 +1007,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// ============ UTILITÁRIOS ============
 function formatDate(dateString) {
     const [year, month, day] = dateString.split('-');
     return `${day}/${month}/${year}`;
