@@ -9,6 +9,10 @@ Sistema distribuído de reservas de voos e hotéis usando gRPC, WebSocket e Kube
     <td align="center"><a href="https://github.com/leomitx10"><img style="border-radius: 50%;" src="https://avatars.githubusercontent.com/u/90487905?v=4" width="100px;" alt=""/><br /><sub><b>Leandro de Almeida</b></sub></a><br />
     <td align="center"><a href="https://github.com/gaubiela"><img style="border-radius: 50%;" src="https://avatars.githubusercontent.com/u/92053289?v=4" width="100px;" alt=""/><br /><sub><b>Gabriela Alves</b></sub></a><br /><a href="Link git" title="Rocketseat"></a></td>
     <td align="center">
+      <td align="center"><a href="https://github.com/LacerdaRenan"><img style="border-radius: 50%;" src="https://avatars.githubusercontent.com/u/88076318?v=4" width="100px;" alt=""/><br /><sub><b>Renan Lacerda</b></sub></a><br /><a href="Link git" title="Rocketseat"></a></td>
+    <td align="center">
+      <td align="center"><a href="https://github.com/SamuelRicardoDS"><img style="border-radius: 50%;" src="https://avatars.githubusercontent.com/u/89036883?v=4" width="100px;" alt=""/><br /><sub><b>Samuel Ricardo</b></sub></a><br /><a href="Link git" title="Rocketseat"></a></td>
+    <td align="center">
   </tr>
 </table>
 
