@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"google.golang.org/grpc"
@@ -32,7 +33,7 @@ func main() {
 		OrderBy:  "price",
 	})
 
-	fmt.Println("\n" + "="*50 + "\n")
+	fmt.Println("\n" + strings.Repeat("=", 50) + "\n")
 
 	// Teste 2: Buscar resorts no Rio de Janeiro
 	fmt.Println("=== Buscando resorts no Rio de Janeiro ===")
@@ -44,7 +45,7 @@ func main() {
 		OrderBy:           "rating",
 	})
 
-	fmt.Println("\n" + "="*50 + "\n")
+	fmt.Println("\n" + strings.Repeat("=", 50) + "\n")
 
 	// Teste 3: Teste de performance com delay
 	fmt.Println("=== Teste de performance (delay 2s) ===")
