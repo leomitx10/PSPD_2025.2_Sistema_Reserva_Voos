@@ -671,6 +671,59 @@ Ver seção Anexos para conteúdo completo.
 5. **Stabilization Window**: Evita oscilações desnecessárias de scaling
 6. **Documentação**: Manter documentação atualizada facilita debugging
 
+### 3.8 Alterações na Aplicação para Facilitar Observabilidade
+
+Conforme permitido na especificação do projeto, algumas alterações foram realizadas na aplicação original para facilitar o monitoramento e permitir testes de carga adequados:
+
+#### 3.8.1 Desabilitação do Rate Limiter
+
+**Alteração**: Rate limiter do API Gateway foi desabilitado durante os testes de carga.
+
+**Arquivo Modificado**: `module-p/src/server.js`
+
+**Justificativa**:
+- O rate limiter original (100 requisições/15 minutos) impedia a execução adequada dos testes de carga
+- Em produção, o rate limiter é essencial para proteção contra DDoS
+- Para ambiente de testes, era necessário remover essa limitação artificial para medir performance real
+
+**Código Original**:
+```javascript
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, 
+  max: 100
+});
+app.use(limiter);
+```
+
+**Código Modificado**:
+```javascript
+// Rate limiter desabilitado para testes de carga
+// Conforme metodologia documentada no relatório
+// const limiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, 
+//   max: 10000
+// });
+// app.use(limiter);
+```
+
+**Impacto**:
+- ✅ Permite medir throughput real da aplicação
+- ✅ Identifica gargalos reais (CPU, memória, rede) ao invés de limites artificiais
+- ✅ Testes de autoscaling (HPA) podem ser executados adequadamente
+- ⚠️ Em produção, reativar o rate limiter com limites apropriados
+
+**Risco e Mitigação**:
+- **Risco**: Aplicação desprotegida contra sobrecarga em produção
+- **Mitigação**: Documentar claramente que esta é uma configuração apenas para testes; em produção, usar rate limiter ou API Gateway com throttling (ex: Kong, Nginx Ingress)
+
+**Conformidade com Especificação**:
+> "Embora a aplicação a ser entregue deva ser a mesma que foi desenvolvida no trabalho extraclasse, eventuais alterações necessárias para facilitar a observabilidade e monitoramento da aplicação são admitidos, desde que estejam documentados no relatório de entrega."
+
+Esta alteração está dentro do escopo permitido, pois:
+1. Não altera a arquitetura de microserviços gRPC (P-A-B)
+2. Facilita a observabilidade ao permitir medições realistas
+3. Está documentada no relatório
+
 ---
 
 ## 4. Monitoramento e Observabilidade

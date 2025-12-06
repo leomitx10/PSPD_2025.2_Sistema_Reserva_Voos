@@ -5,6 +5,31 @@ import random
 from datetime import datetime, timedelta
 import voos_service_pb2
 import voos_service_pb2_grpc
+from prometheus_client import start_http_server, Counter, Histogram, Gauge
+import threading
+
+# Métricas Prometheus
+GRPC_REQUESTS_TOTAL = Counter(
+    'grpc_voos_requests_total',
+    'Total de requisições gRPC recebidas',
+    ['method', 'status']
+)
+
+GRPC_REQUEST_DURATION = Histogram(
+    'grpc_voos_request_duration_seconds',
+    'Duração das requisições gRPC',
+    ['method']
+)
+
+VOOS_BUSCA_TOTAL = Counter(
+    'voos_busca_total',
+    'Total de buscas de voos realizadas'
+)
+
+VOOS_ENCONTRADOS = Gauge(
+    'voos_encontrados_ultima_busca',
+    'Quantidade de voos encontrados na última busca'
+)
 
 class VoosServiceImpl(voos_service_pb2_grpc.VoosServiceServicer):
     def __init__(self):
@@ -100,19 +125,34 @@ class VoosServiceImpl(voos_service_pb2_grpc.VoosServiceServicer):
     def ConsultarVoos(self, request, context):
         inicio_processamento = time.time()
         
-        time.sleep(random.uniform(1, 3))
+        # Métricas: incrementar contador de buscas
+        VOOS_BUSCA_TOTAL.inc()
         
-        voos_filtrados = self._aplicar_filtros(request)
-        
-        voos_ordenados = self._ordenar_voos(voos_filtrados, request.ordenacao)
-        
-        tempo_processamento = time.time() - inicio_processamento
-        
-        return voos_service_pb2.ConsultaVoosResponse(
-            voos=voos_ordenados,
-            total_encontrados=len(voos_ordenados),
-            tempo_processamento=f"{tempo_processamento:.2f}s"
-        )
+        try:
+            time.sleep(random.uniform(1, 3))
+            
+            voos_filtrados = self._aplicar_filtros(request)
+            
+            voos_ordenados = self._ordenar_voos(voos_filtrados, request.ordenacao)
+            
+            tempo_processamento = time.time() - inicio_processamento
+            
+            # Métricas: registrar quantidade de voos encontrados
+            VOOS_ENCONTRADOS.set(len(voos_ordenados))
+            
+            # Métricas: registrar sucesso
+            GRPC_REQUESTS_TOTAL.labels(method='ConsultarVoos', status='success').inc()
+            GRPC_REQUEST_DURATION.labels(method='ConsultarVoos').observe(tempo_processamento)
+            
+            return voos_service_pb2.ConsultaVoosResponse(
+                voos=voos_ordenados,
+                total_encontrados=len(voos_ordenados),
+                tempo_processamento=f"{tempo_processamento:.2f}s"
+            )
+        except Exception as e:
+            # Métricas: registrar erro
+            GRPC_REQUESTS_TOTAL.labels(method='ConsultarVoos', status='error').inc()
+            raise
     
     def _aplicar_filtros(self, request):
         voos_filtrados = self.voos_database.copy()
@@ -227,13 +267,17 @@ class VoosServiceImpl(voos_service_pb2_grpc.VoosServiceServicer):
                 print(f"[CHAT VOOS] Mensagem não é sobre voos, ignorando...")
 
 def serve():
+    # Iniciar servidor HTTP para métricas Prometheus na porta 8000
+    start_http_server(8000)
+    print("📊 Servidor de métricas Prometheus rodando na porta 8000")
+    
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     voos_service_pb2_grpc.add_VoosServiceServicer_to_server(VoosServiceImpl(), server)
 
     server.add_insecure_port('0.0.0.0:50051')
     server.start()
 
-    print("Servidor gRPC de Voos rodando na porta 50051")
+    print("🚀 Servidor gRPC de Voos rodando na porta 50051")
     print("Pressione Ctrl+C para parar")
 
     server.wait_for_termination()

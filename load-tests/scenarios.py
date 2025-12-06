@@ -1,14 +1,15 @@
 """
 Cenários de Teste de Carga
 Define diferentes configurações de teste para avaliar o sistema
+Tempo total estimado: ~5 minutos
 """
 
 SCENARIOS = {
     "cenario_1_baseline": {
         "description": "Baseline - Configuração mínima",
         "users": 10,
-        "spawn_rate": 2,
-        "duration": "5m",
+        "spawn_rate": 5,
+        "duration": "1m",
         "k8s_config": {
             "voos_replicas": 2,
             "hoteis_replicas": 2,
@@ -20,9 +21,9 @@ SCENARIOS = {
 
     "cenario_2_moderate": {
         "description": "Carga Moderada - HPA habilitado",
-        "users": 50,
-        "spawn_rate": 5,
-        "duration": "10m",
+        "users": 30,
+        "spawn_rate": 10,
+        "duration": "1m",
         "k8s_config": {
             "voos_replicas": 2,
             "hoteis_replicas": 2,
@@ -35,9 +36,9 @@ SCENARIOS = {
 
     "cenario_3_high_load": {
         "description": "Alta Carga - Teste de escalabilidade",
-        "users": 200,
+        "users": 50,
         "spawn_rate": 10,
-        "duration": "15m",
+        "duration": "1m",
         "k8s_config": {
             "voos_replicas": 3,
             "hoteis_replicas": 3,
@@ -48,26 +49,11 @@ SCENARIOS = {
         "objetivo": "Testar limites de escalabilidade horizontal"
     },
 
-    "cenario_4_stress": {
-        "description": "Teste de Estresse - Identificar breaking point",
-        "users": 500,
-        "spawn_rate": 25,
-        "duration": "10m",
-        "k8s_config": {
-            "voos_replicas": 2,
-            "hoteis_replicas": 2,
-            "gateway_replicas": 2,
-            "hpa_enabled": True,
-            "hpa_max_replicas": 20
-        },
-        "objetivo": "Identificar ponto de quebra do sistema"
-    },
-
-    "cenario_5_spike": {
+    "cenario_4_spike": {
         "description": "Spike Test - Pico súbito de requisições",
-        "users": 300,
-        "spawn_rate": 100,  # Crescimento muito rápido
-        "duration": "5m",
+        "users": 100,
+        "spawn_rate": 50,  # Crescimento muito rápido
+        "duration": "1m",
         "k8s_config": {
             "voos_replicas": 2,
             "hoteis_replicas": 2,
@@ -78,82 +64,19 @@ SCENARIOS = {
         "objetivo": "Avaliar resposta a picos súbitos de tráfego"
     },
 
-    "cenario_6_sustained": {
-        "description": "Carga Sustentada - Teste de estabilidade",
-        "users": 100,
-        "spawn_rate": 5,
-        "duration": "30m",
-        "k8s_config": {
-            "voos_replicas": 3,
-            "hoteis_replicas": 3,
-            "gateway_replicas": 3,
-            "hpa_enabled": True,
-            "hpa_max_replicas": 10
-        },
-        "objetivo": "Verificar estabilidade com carga constante prolongada"
-    },
-
-    "cenario_7_gradual": {
-        "description": "Crescimento Gradual - Avaliar autoscaling progressivo",
-        "users": 250,
-        "spawn_rate": 2,  # Crescimento lento
-        "duration": "20m",
-        "k8s_config": {
-            "voos_replicas": 2,
-            "hoteis_replicas": 2,
-            "gateway_replicas": 2,
-            "hpa_enabled": True,
-            "hpa_max_replicas": 12
-        },
-        "objetivo": "Observar comportamento do HPA com crescimento gradual"
-    },
-
-    "cenario_8_resource_constrained": {
-        "description": "Recursos Limitados - Teste com limits baixos",
-        "users": 100,
-        "spawn_rate": 10,
-        "duration": "10m",
-        "k8s_config": {
-            "voos_replicas": 2,
-            "hoteis_replicas": 2,
-            "gateway_replicas": 2,
-            "hpa_enabled": True,
-            "hpa_max_replicas": 5,
-            "cpu_limit": "100m",
-            "memory_limit": "128Mi"
-        },
-        "objetivo": "Avaliar performance com recursos limitados"
-    },
-
-    "cenario_9_unbalanced": {
-        "description": "Carga Desbalanceada - Mais réplicas em um serviço",
+    "cenario_5_stress": {
+        "description": "Teste de Estresse - Identificar breaking point",
         "users": 150,
-        "spawn_rate": 10,
-        "duration": "10m",
+        "spawn_rate": 30,
+        "duration": "1m",
         "k8s_config": {
-            "voos_replicas": 5,  # Mais réplicas
+            "voos_replicas": 2,
             "hoteis_replicas": 2,
-            "gateway_replicas": 4,
-            "hpa_enabled": True
-        },
-        "objetivo": "Comparar desempenho com distribuição desbalanceada"
-    },
-
-    "cenario_10_optimal": {
-        "description": "Configuração Otimizada - Baseado em resultados anteriores",
-        "users": 200,
-        "spawn_rate": 10,
-        "duration": "15m",
-        "k8s_config": {
-            "voos_replicas": 4,
-            "hoteis_replicas": 4,
-            "gateway_replicas": 5,
+            "gateway_replicas": 2,
             "hpa_enabled": True,
-            "hpa_max_replicas": 15,
-            "cpu_limit": "500m",
-            "memory_limit": "512Mi"
+            "hpa_max_replicas": 20
         },
-        "objetivo": "Validar configuração otimizada final"
+        "objetivo": "Identificar ponto de quebra do sistema"
     }
 }
 

@@ -28,6 +28,7 @@ class ReservasUser(HttpUser):
     def on_start(self):
         """Executado quando o usuário inicia"""
         self.client.verify = False  # Desabilita verificação SSL para testes
+        self.carrinho = []  # Inicializa carrinho vazio
         print(f"[{datetime.now()}] Novo usuário iniciado")
 
     @task(5)
@@ -39,12 +40,31 @@ class ReservasUser(HttpUser):
         origem = random.choice(ORIGINS)
         destino = random.choice([d for d in DESTINATIONS if d != origem])
 
-        with self.client.get(
-            f"/flights?origin={origem}&destination={destino}",
+        payload = {
+            "origem": origem,
+            "destino": destino,
+            "data": "2025-12-15",
+            "passageiros": random.randint(1, 4),
+            "tipo_viagem": "oneway"
+        }
+
+        with self.client.post(
+            f"/api/flights/search",
+            json=payload,
             catch_response=True,
-            name="/flights [Busca Voos]"
+            name="/api/flights/search [Busca Voos]"
         ) as response:
             if response.status_code == 200:
+                try:
+                    data = response.json()
+                    # Simula adicionar voo ao carrinho
+                    voos = data.get("voos", [])
+                    if voos and len(voos) > 0:
+                        voo_id = voos[0].get("id", f"FL{random.randint(100, 999)}")
+                        self.carrinho.append({"flight_id": voo_id})
+                except:
+                    # Se não conseguir parsear JSON, usa ID genérico
+                    self.carrinho.append({"flight_id": f"FL{random.randint(100, 999)}"})
                 response.success()
             else:
                 response.failure(f"Status {response.status_code}")
@@ -57,12 +77,31 @@ class ReservasUser(HttpUser):
         """
         cidade = random.choice(CITIES)
 
-        with self.client.get(
-            f"/hotels?city={cidade}",
+        payload = {
+            "city": cidade,
+            "checkin": "2025-12-15",
+            "checkout": "2025-12-18",
+            "rooms": 1,
+            "guests": random.randint(1, 4)
+        }
+
+        with self.client.post(
+            f"/api/hotels/search",
+            json=payload,
             catch_response=True,
-            name="/hotels [Busca Hotéis]"
+            name="/api/hotels/search [Busca Hotéis]"
         ) as response:
             if response.status_code == 200:
+                try:
+                    data = response.json()
+                    # Simula adicionar hotel ao carrinho
+                    hoteis = data.get("hoteis", [])
+                    if hoteis and len(hoteis) > 0:
+                        hotel_id = hoteis[0].get("id", f"HT{random.randint(100, 999)}")
+                        self.carrinho.append({"hotel_id": hotel_id})
+                except:
+                    # Se não conseguir parsear JSON, usa ID genérico
+                    self.carrinho.append({"hotel_id": f"HT{random.randint(100, 999)}"})
                 response.success()
             else:
                 response.failure(f"Status {response.status_code}")
@@ -75,12 +114,21 @@ class ReservasUser(HttpUser):
         """
         origem = random.choice(ORIGINS)
         destino = random.choice([d for d in DESTINATIONS if d != origem])
-        cidade = random.choice(CITIES)
 
-        with self.client.get(
-            f"/packages?origin={origem}&destination={destino}&city={cidade}",
+        payload = {
+            "origem": origem,
+            "destino": destino,
+            "data": "2025-12-15",
+            "data_volta": "2025-12-20",
+            "rooms": 1,
+            "guests": random.randint(1, 4)
+        }
+
+        with self.client.post(
+            f"/api/packages/search",
+            json=payload,
             catch_response=True,
-            name="/packages [Busca Pacotes]"
+            name="/api/packages/search [Busca Pacotes]"
         ) as response:
             if response.status_code == 200:
                 response.success()
@@ -109,20 +157,24 @@ class ReservasUser(HttpUser):
         Simula finalização de compra.
         Task weight = 1 (menos frequente - comportamento real)
         """
-        # Simula seleção de itens
-        items = {
-            "flight_id": f"FL{random.randint(100, 999)}",
-            "hotel_id": f"HT{random.randint(100, 999)}",
-            "passengers": random.randint(1, 4)
-        }
+        # Só tenta fazer checkout se tiver itens no carrinho
+        if not self.carrinho:
+            return
+        
+        # Monta payload com os itens do carrinho
+        items = {}
+        for item in self.carrinho:
+            items.update(item)
+        items["passengers"] = random.randint(1, 4)
 
         with self.client.post(
-            "/checkout",
+            "/api/cart/checkout",
             json=items,
             catch_response=True,
-            name="/checkout [Finalizar Compra]"
+            name="/api/cart/checkout [Finalizar Compra]"
         ) as response:
             if response.status_code in [200, 201]:
+                self.carrinho = []  # Limpa carrinho após compra bem-sucedida
                 response.success()
             else:
                 response.failure(f"Status {response.status_code}")
@@ -141,13 +193,31 @@ class StressTestUser(HttpUser):
         """Busca voos em modo estresse"""
         origem = random.choice(ORIGINS)
         destino = random.choice([d for d in DESTINATIONS if d != origem])
-        self.client.get(f"/flights?origin={origem}&destination={destino}")
+        
+        payload = {
+            "origem": origem,
+            "destino": destino,
+            "data": "2025-12-15",
+            "passageiros": 1,
+            "tipo_viagem": "oneway"
+        }
+        
+        self.client.post("/api/flights/search", json=payload)
 
     @task(5)
     def buscar_hoteis_stress(self):
         """Busca hotéis em modo estresse"""
         cidade = random.choice(CITIES)
-        self.client.get(f"/hotels?city={cidade}")
+        
+        payload = {
+            "city": cidade,
+            "checkin": "2025-12-15",
+            "checkout": "2025-12-18",
+            "rooms": 1,
+            "guests": 1
+        }
+        
+        self.client.post("/api/hotels/search", json=payload)
 
 
 # Eventos customizados para métricas adicionais
