@@ -16,7 +16,8 @@
     "helmet": "^7.0.0",
     "compression": "^1.7.4",
     "express-rate-limit": "^6.10.0",
-    "ws": "^8.14.0"
+    "ws": "^8.14.0",
+    "prom-client": "^15.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.0"
