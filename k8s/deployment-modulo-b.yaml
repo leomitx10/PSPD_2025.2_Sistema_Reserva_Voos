@@ -13,6 +13,10 @@ spec:
     metadata:
       labels:
         app: hoteis-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8001"
+        prometheus.io/path: "/metrics"
     spec:
       containers:
       - name: hoteis-service
@@ -21,6 +25,9 @@ spec:
         ports:
         - containerPort: 50052
           name: grpc
+          protocol: TCP
+        - containerPort: 8001
+          name: metrics
           protocol: TCP
         resources:
           requests:

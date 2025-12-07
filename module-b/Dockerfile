@@ -8,11 +8,14 @@ RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1
 RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2.0
 
 # Copiar arquivos de dependência
-COPY go.mod go.sum ./
+COPY go.mod ./
 RUN go mod download
 
 # Copiar código fonte
 COPY . .
+
+# Atualizar dependências
+RUN go mod tidy
 
 # Recompilar proto files
 RUN protoc --go_out=. --go-grpc_out=. proto/hotel.proto
@@ -27,8 +30,8 @@ WORKDIR /app
 
 COPY --from=builder /app/hotel-server .
 
-# Expor porta gRPC
-EXPOSE 50052
+# Expor portas gRPC e métricas
+EXPOSE 50052 8001
 
 # Iniciar servidor
 CMD ["./hotel-server"]

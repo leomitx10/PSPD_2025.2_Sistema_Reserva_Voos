@@ -13,6 +13,10 @@ spec:
     metadata:
       labels:
         app: voos-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
     spec:
       containers:
       - name: voos-service
@@ -21,6 +25,9 @@ spec:
         ports:
         - containerPort: 50051
           name: grpc
+          protocol: TCP
+        - containerPort: 8000
+          name: metrics
           protocol: TCP
         resources:
           requests:

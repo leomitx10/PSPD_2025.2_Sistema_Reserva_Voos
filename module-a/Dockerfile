@@ -11,8 +11,10 @@ COPY proto/ proto/
 COPY cmd/ cmd/
 COPY internal/ internal/
 
-RUN python -m grpc_tools.protoc -I./proto --python_out=./proto --grpc_python_out=./proto proto/voos_service.proto
+RUN python -m grpc_tools.protoc -I./proto --python_out=. --grpc_python_out=. proto/voos_service.proto
 
-EXPOSE 50051
+COPY voos_server.py .
+
+EXPOSE 50051 8000
 
 CMD ["python", "-u", "cmd/server/main.py"]

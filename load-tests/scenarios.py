@@ -9,7 +9,7 @@ SCENARIOS = {
         "description": "Baseline - Configuração mínima",
         "users": 10,
         "spawn_rate": 5,
-        "duration": "1m",
+        "duration": "5m",
         "k8s_config": {
             "voos_replicas": 2,
             "hoteis_replicas": 2,
@@ -23,7 +23,7 @@ SCENARIOS = {
         "description": "Carga Moderada - HPA habilitado",
         "users": 30,
         "spawn_rate": 10,
-        "duration": "1m",
+        "duration": "5m",
         "k8s_config": {
             "voos_replicas": 2,
             "hoteis_replicas": 2,
@@ -38,7 +38,7 @@ SCENARIOS = {
         "description": "Alta Carga - Teste de escalabilidade",
         "users": 50,
         "spawn_rate": 10,
-        "duration": "1m",
+        "duration": "5m",
         "k8s_config": {
             "voos_replicas": 3,
             "hoteis_replicas": 3,
@@ -53,7 +53,7 @@ SCENARIOS = {
         "description": "Spike Test - Pico súbito de requisições",
         "users": 100,
         "spawn_rate": 50,  # Crescimento muito rápido
-        "duration": "1m",
+        "duration": "5m",
         "k8s_config": {
             "voos_replicas": 2,
             "hoteis_replicas": 2,
@@ -68,7 +68,7 @@ SCENARIOS = {
         "description": "Teste de Estresse - Identificar breaking point",
         "users": 150,
         "spawn_rate": 30,
-        "duration": "1m",
+        "duration": "5m",
         "k8s_config": {
             "voos_replicas": 2,
             "hoteis_replicas": 2,

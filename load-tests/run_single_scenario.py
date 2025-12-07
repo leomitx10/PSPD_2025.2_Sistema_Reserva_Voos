@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 """
-Script para executar cenários de teste de carga automaticamente
-Coleta métricas e gera relatórios
+Script base para executar um único cenário de teste de carga
 """
 
 import subprocess
 import time
 import json
 import os
+import sys
 from datetime import datetime
 import requests
-from scenarios import SCENARIOS
 
 # Configurações
 HOST = "http://localhost:3000"
@@ -59,6 +58,7 @@ def run_locust_test(scenario_name, scenario_config):
     print_header(f"Executando: {scenario_name}")
     print(f"Descrição: {scenario_config['description']}")
     print(f"Usuários: {scenario_config['users']} | Spawn Rate: {scenario_config['spawn_rate']}/s | Duração: {scenario_config['duration']}")
+    print(f"HPA: {'Habilitado' if scenario_config.get('hpa_enabled', False) else 'Desabilitado'}")
     
     # Criar diretório de resultados
     os.makedirs(RESULTS_DIR, exist_ok=True)
@@ -83,6 +83,8 @@ def run_locust_test(scenario_name, scenario_config):
     try:
         # Coletar estatísticas iniciais
         stats_before = collect_docker_stats()
+        
+        print("\n⏳ Teste em andamento...")
         
         # Executar teste (sem mostrar output detalhado)
         process = subprocess.Popen(
@@ -140,34 +142,16 @@ def print_test_metrics(output_prefix):
                                 print(f"   Tempo Máximo: {parts[6]} ms")
                                 print(f"   Throughput: {parts[10]} req/s")
                             break
-        print_success(f"Relatório completo: {output_prefix}_report.html")
+        print_success(f"Relatório HTML: {output_prefix}_report.html")
+        print_success(f"Dados CSV: {output_prefix}_stats.csv")
+        print_success(f"Docker Stats: {output_prefix}_docker_stats.json")
     except Exception as e:
         print_error(f"Erro ao ler métricas: {e}")
 
-def generate_summary():
-    """Gera um resumo dos testes executados"""
-    print_header("Resumo dos Testes")
-    
-    summary_file = f"{RESULTS_DIR}/summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-    
-    with open(summary_file, 'w') as f:
-        f.write("="*80 + "\n")
-        f.write("RESUMO DOS TESTES DE CARGA\n")
-        f.write(f"Data/Hora: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-        f.write("="*80 + "\n\n")
-        
-        # Listar arquivos gerados
-        f.write("Arquivos Gerados:\n")
-        for file in sorted(os.listdir(RESULTS_DIR)):
-            if file.endswith(('.html', '.csv', '.json')):
-                filepath = os.path.join(RESULTS_DIR, file)
-                size = os.path.getsize(filepath)
-                f.write(f"  - {file} ({size} bytes)\n")
-    
-    print_success(f"Resumo salvo em: {summary_file}")
-
-def main():
-    print_header("Sistema de Testes de Carga - PSPD 2025.2")
+def run_scenario(scenario_name, scenario_config):
+    """Executa um cenário específico"""
+    print_header(f"TESTE DE CARGA - {scenario_name.upper()}")
+    print(f"Data/Hora: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     
     # Verificar se o serviço está disponível
     if not check_service_health():
@@ -177,30 +161,18 @@ def main():
     
     print_success("Serviço disponível\n")
     
-    # Executar cada cenário
-    results = {}
-    for scenario_name, scenario_config in SCENARIOS.items():
-        success = run_locust_test(scenario_name, scenario_config)
-        results[scenario_name] = success
-        
-        # Aguardar entre testes
-        if scenario_name != list(SCENARIOS.keys())[-1]:
-            time.sleep(5)
+    # Executar cenário
+    success = run_locust_test(scenario_name, scenario_config)
     
-    # Gerar resumo
-    generate_summary()
-    
-    # Mostrar resultados finais
-    print_header("Resultados Finais")
-    for scenario_name, success in results.items():
-        status = "✓" if success else "✗"
-        print(f"{status} {scenario_name}")
-    
-    total = len(results)
-    passed = sum(results.values())
-    print(f"\n{passed}/{total} cenários executados com sucesso")
-    
-    return 0 if all(results.values()) else 1
+    # Resultado final
+    print_header("Resultado")
+    if success:
+        print_success(f"✓ Cenário '{scenario_name}' executado com sucesso!")
+        return 0
+    else:
+        print_error(f"✗ Cenário '{scenario_name}' falhou!")
+        return 1
 
 if __name__ == "__main__":
-    exit(main())
+    print("Este é um módulo base. Execute os scripts individuais de cada cenário.")
+    sys.exit(1)
